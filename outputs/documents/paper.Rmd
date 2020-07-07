@@ -54,6 +54,9 @@ A typical data science workflow involves
 Internal and external consistency
 
 
+OpenAI GPT-3 is
+
+
 # Stylized example
 
 As a stylized example, let's consider the following actual paragraph from Jane Eyre, by Charlotte Bronte:
