@@ -56,9 +56,14 @@ Internal and external consistency
 ### Article: Improving Language Understanding by Generative Pre-Training (2018)
 Introduction of a semi-supervised approach for language understanding machine learning tasks. The approach is the combinaiton of unsupervised pre-training and supervised fine-tuning. 
 
-OpenAI GPT-3 is
+### Article: Language Models are Few-Shot Learners (2020)
+Official paper from OpenAI to introduce OpenAI GPT-3. Emphasizes on the "fewer-shots" and "task-agnostic" aspects of the latest langual model compared to its predecessor GPT-2.
 
+In recent years, pre-trained language models have tremendous contributions in advancing a wide range of diverse natural language processing (NLP) tasks such as reading comprehension, text generation, and many others. The pre-trained models enables (citation). As the pre-trainde models remove the need for researchers and technologists to train models from scratch, they promote faster growth and advancement int he field of NLP. OpenAI GPT-3 is the latest generative pre-trained language model released by OpenAI in 2020. It has 175 billion parameters and is trained to [do that and that]. GPT-2, the predecessor of GPT-3, employs a semi-supervised approach that combines unsupervised pre-training and supervised fine-tuning where task-specific data set and task-specific fine-tuning were still needed in achieving these tasks until the birth of GPT-3 (citation). GPT-3 removes such needs, and its task-agnostic nature enables the accessible creation of cutting-edge NLP applications.
 
+GPT-3 learns like human do — with brief directive and simple instruction...
+
+In our application, we deploy OpenAI GPT-3 to generate text and ...
 
 
 # Stylized example
