@@ -79,6 +79,10 @@ Various models can be used....
 
 ## ngrams
 
+Article: Class-Based n-gram Models of Natural Language (1992)
+Syntax-based (grammartical) and semantic-based (sensible) word classifications in n-gram models. 
+
+
 
 ## Something
 
