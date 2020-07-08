@@ -53,17 +53,22 @@ A typical data science workflow involves
 
 Internal and external consistency
 
+/// Start of  OpenAI GPT-3 section ///
+
+In recent years, pre-trained language models have tremendous contributions in advancing natural language processing (NLP) tasks such as reading comprehension, text generation, and many others (citation). As the pre-trained models remove the need for researchers and technologists to train models from scratch, they promote faster growth and advancement int the field of NLP. OpenAI GPT-3 is the latest generative pre-trained language model released by OpenAI in 2020. It has 175 billion parameters and is trained to [do that and that]. GPT-2, the predecessor of GPT-3, employs a semi-supervised approach that combines unsupervised pre-training and supervised fine-tuning where task-specific data set and task-specific fine-tuning were still needed in achieving these tasks until the birth of GPT-3 (citation). GPT-3 removes such needs, and its task-agnostic nature enables the accessible creation of cutting-edge NLP applications.
+
+GPT-3 learns like humans do — with brief directives and simple instruction...
+
+In our application, we deploy OpenAI GPT-3 to generate text and ...
+
+/// End of  OpenAI GPT-3 section ///
+
 ### Article: Improving Language Understanding by Generative Pre-Training (2018)
 Introduction of a semi-supervised approach for language understanding machine learning tasks. The approach is the combinaiton of unsupervised pre-training and supervised fine-tuning. 
 
 ### Article: Language Models are Few-Shot Learners (2020)
 Official paper from OpenAI to introduce OpenAI GPT-3. Emphasizes on the "fewer-shots" and "task-agnostic" aspects of the latest langual model compared to its predecessor GPT-2.
 
-In recent years, pre-trained language models have tremendous contributions in advancing a wide range of diverse natural language processing (NLP) tasks such as reading comprehension, text generation, and many others. The pre-trained models enables (citation). As the pre-trainde models remove the need for researchers and technologists to train models from scratch, they promote faster growth and advancement int he field of NLP. OpenAI GPT-3 is the latest generative pre-trained language model released by OpenAI in 2020. It has 175 billion parameters and is trained to [do that and that]. GPT-2, the predecessor of GPT-3, employs a semi-supervised approach that combines unsupervised pre-training and supervised fine-tuning where task-specific data set and task-specific fine-tuning were still needed in achieving these tasks until the birth of GPT-3 (citation). GPT-3 removes such needs, and its task-agnostic nature enables the accessible creation of cutting-edge NLP applications.
-
-GPT-3 learns like human do — with brief directive and simple instruction...
-
-In our application, we deploy OpenAI GPT-3 to generate text and ...
 
 
 # Stylized example
@@ -88,28 +93,18 @@ Various models can be used....
 
 ## ngrams
 
-Without exception, all human languages have some words that co-occur more frequently with others. Under this assumption, we can regard the production of English text as a set of conditional probabilities, written as Pr($w_{k}$ | $w^{k-1}_{1}$), where $w_{k}$ is the predicted word and $w^{k-1}_{1}$ is the history of the word occuring in a sequence (citation). In other word, the generation of prediction $w_{k}$ is based on the history $w^{k-1}_{1}$. [Add more to link to n-gram]
+Without exception, all human languages have some words that co-occur more frequently with others. Under this assumption, we can regard the production of English text as a set of conditional probabilities, written as Pr($w_{k}$ | $w^{k-1}_{1}$), where $w_{k}$ is the predicted word, and $w^{k-1}_{1}$ is the history of the word occurring in a sequence (citation). In other word, the generation of prediction $w_{k}$ is based on the history $w^{k-1}_{1}$. [Add a sentence linking to n-gram]
 
-N-gram is a sequence of n words. Taking the first sentence from the Jane Eyre excerpt as an example:
+N-gram is a sequence of n words. Taking the imcomplete first sentence from the Jane Eyre excerpt as an example:
 
-> There was no possibility of...
+> "There was no possibility of..."
 
-"There" is an unigram, "There was" is a bigram, "There was no" is a trigram, and "There was no possibility of" is a 5-gram. On the other hand, the trigrams of the exerpt are "There was no", "was no possibility" and "no possibility of". The overlapping chaining of words reveals the statstical behaviour in human language. Moreover, N-gram then enables us to assign a probability to the occurrence of a sequence of words or the probability of a word occurring next in a sequence of words. 
+"There" is a unigram, "There was" is a bigram, "There was no" is a trigram, and "There was no possibility of" is a 5-gram. On the other hand, the trigrams of the excerpt are "There was no," "was no possibility," and "no possibility of." The overlapping chaining of words reveals the statistical behaviour in human language. Moreover, N-gram then enables us to assign a probability to the occurrence of a sequence of words or the likelihood of a word occurring next.
 
-[Include N to do more statistics write up]
+[Maybe include N to do more statistics write up]
 
-The application of n-gram is versatile. N-gram is widely applied in text prediction and spelling-correction
+The application of n-gram is versatile. N-gram is widely applied in text prediction and spelling-correction...
 
-
-> There was no possibility of taking a walk that day
-
-This is useful because...
-
-
-N-gram is a sequence of words that has n words in it. The n-gram model is widely applied to 
-Since n-gram 
-N-gram is a model that is widely applied to 
-N-gram is under the assumtion that the production of English text can be characterized by a set of conditional probabilities, Pr($w_{k}$ | $w^{k-1}_{1}$), where $w_{k}$ is the prediction and $w^{k-1}_{1}$ is the history (Citation).   
 
 
 ### Article: Class-Based n-gram Models of Natural Language (1992)
