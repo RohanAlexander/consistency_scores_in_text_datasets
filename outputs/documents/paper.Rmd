@@ -53,8 +53,12 @@ A typical data science workflow involves
 
 Internal and external consistency
 
+### Article: Improving Language Understanding by Generative Pre-Training (2018)
+Introduction of a semi-supervised approach for language understanding machine learning tasks. The approach is the combinaiton of unsupervised pre-training and supervised fine-tuning. 
 
 OpenAI GPT-3 is
+
+
 
 
 # Stylized example
@@ -79,8 +83,16 @@ Various models can be used....
 
 ## ngrams
 
-Article: Class-Based n-gram Models of Natural Language (1992)
+
+
+### Article: Class-Based n-gram Models of Natural Language (1992)
 Syntax-based (grammartical) and semantic-based (sensible) word classifications in n-gram models. 
+
+### Article: A Statistical Approach to Automatic OCR Error Correction in Context (1996)
+Context-sensitive correction system to both non-word and real-word errors based on n-gram models applied to OCR postprocessing.
+
+### Article: Unsupervised Learning of Sentence Embeddings using Compositional n-Gram Features (2017)
+Embedding of sentences (sequence of words with semantic representations) compositional n-gram features.
 
 
 
