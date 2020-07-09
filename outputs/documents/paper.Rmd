@@ -55,9 +55,11 @@ Internal and external consistency
 
 /// Start of  OpenAI GPT-3 section ///
 
-In recent years, pre-trained language models have tremendous contributions in advancing natural language processing (NLP) tasks such as reading comprehension, text generation, and many others (citation). As the pre-trained models remove the need for researchers and technologists to train models from scratch, they promote faster growth and advancement int the field of NLP. OpenAI GPT-3 is the latest generative pre-trained language model released by OpenAI in 2020. It has 175 billion parameters and is trained to [do that and that]. GPT-2, the predecessor of GPT-3, employs a semi-supervised approach that combines unsupervised pre-training and supervised fine-tuning where task-specific data set and task-specific fine-tuning were still needed in achieving these tasks until the birth of GPT-3 (citation). GPT-3 removes such needs, and its task-agnostic nature enables the accessible creation of cutting-edge NLP applications.
+In recent years, pre-trained language models have tremendous contributions in advancing natural language processing (NLP) tasks such as reading comprehension, text generation, and many others (citation). As the pre-trained models remove the need for researchers and technologists to train models from scratch, they promote faster growth and advancement int the field of NLP. OpenAI GPT-3 is the latest generative pre-trained language model released by OpenAI in 2020. With 175 billion parameters, GPT-3 is claimed to have the capacity to generate text that ressembles human creation (citation). GPT-2, the predecessor of GPT-3, employs a semi-supervised approach that combines unsupervised pre-training and supervised fine-tuning where task-specific data set and task-specific fine-tuning were still needed in achieving these tasks until the birth of GPT-3 (citation). GPT-3 removes such needs, and its task-agnostic nature enables the accessible creation of cutting-edge NLP applications.
 
-GPT-3 learns like humans do — with brief directives and simple instruction...
+GPT-3 also learns like humans do — with brief directives and simple instructions...
+
+The task-agnostic feature also permits it to adapt to the style of the data being fed to it (citation).
 
 In our application, we deploy OpenAI GPT-3 to generate text and ...
 
@@ -93,17 +95,18 @@ Various models can be used....
 
 ## ngrams
 
-Without exception, all human languages have some words that co-occur more frequently with others. Under this assumption, we can regard the production of English text as a set of conditional probabilities, written as Pr($w_{k}$ | $w^{k-1}_{1}$), where $w_{k}$ is the predicted word, and $w^{k-1}_{1}$ is the history of the word occurring in a sequence (citation). In other word, the generation of prediction $w_{k}$ is based on the history $w^{k-1}_{1}$. [Add a sentence linking to n-gram]
+Traditionally, word-correction techniques evaluate errors one by one without considering the context of the surrounding words. This was no longer the case in modern correction techniques as statistical language models (SLMs) and feature-based methods have been used for context-sensitive correction (citation). Without exception, all human languages have some words that co-occur more frequently with others. Under this assumption, we can regard the production of English text as a set of conditional probabilities, written as Pr($w_{k}$ | $w^{k-1}_{1}$), where k is the number of words in a sentence, $w_{k}$ is the predicted word, and $w^{k-1}_{1}$ is the history of the word occurring in a sequence (citation). In other word, the generation of prediction $w_{k}$ is based on the history $w^{k-1}_{1}$. This conditional probability is the foundation of an n-gram language model.
 
-N-gram is a sequence of n words. Taking the imcomplete first sentence from the Jane Eyre excerpt as an example:
+An n-gram model is a probabilistic language model that predicts the next word in a sequence of words. The $n$ in n-gram represents the number of words in a sequence. Taking an incomplete sentence from the Jane Eyre excerpt as an example:
 
-> "There was no possibility of..."
+> "We had been wandering,"
 
-"There" is a unigram, "There was" is a bigram, "There was no" is a trigram, and "There was no possibility of" is a 5-gram. On the other hand, the trigrams of the excerpt are "There was no," "was no possibility," and "no possibility of." The overlapping chaining of words reveals the statistical behaviour in human language. Moreover, N-gram then enables us to assign a probability to the occurrence of a sequence of words or the likelihood of a word occurring next.
+"We" is a unigram, "We had" is a bigram, "We had been" is a trigram, and "We had been wandering" is a 4-gram. On the other hand, the trigrams of the excerpt are "We had been," and "had been wandering." The overlapping chaining of words reveals the statistical behaviour in human language. Moreover, N-gram then enables us to assign a probability to the occurrence of a sequence of words or the likelihood of a word occurring next. Consider the two sentences: "We had been wandering," and "We had been wangling." The former is likely to be more frequently encountered in a training corpus. Thus, the n-gram would assign a higher probability to "wandering" than to "wangling."
 
-[Maybe include N to do more statistics write up]
+By including the $n$ into the previous conditional probability to be 
+Pr($w_{k}$ | $w^{k-1}_{1}$) 
 
-The application of n-gram is versatile. N-gram is widely applied in text prediction and spelling-correction...
+The application of n-gram is versatile. N-gram is widely applied in text prediction, spelling-correction, machine translation...
 
 
 
