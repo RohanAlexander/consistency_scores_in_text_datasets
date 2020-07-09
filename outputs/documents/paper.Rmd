@@ -18,7 +18,7 @@ author:
   affiliation: University of Toronto
 - name: Ke-Li Chiu
   affiliation: University of Toronto  
-abstract: "..."
+abstract: "In this paper we use GPT-3 to clean the text from PDFs by comparing the original text with the generated text. We also introduce the notion of a consistency score, which refers to the proporation of text that is unchanged by the model, and is used to monitor changes during an iterative cleaning process. We illustrate our process on text from the Canadian Hansard and develop a Shiny application and R package to make our procedure easier for others to use."
 keywords: "..."
 date: "`r format(Sys.time(), '%B %d, %Y')`"
 geometry: margin=1in
