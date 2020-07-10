@@ -43,4 +43,4 @@ function(input, output, session) {
 
 }
 library(shiny)
-runGitHub("consistency_scores_in_text_datasets", "RohanAlexander", subdir = "shinyapp/")
+runUrl("https://github.com/RohanAlexander/consistency_scores_in_text_datasets/tree/master/shinyapp.zip")
