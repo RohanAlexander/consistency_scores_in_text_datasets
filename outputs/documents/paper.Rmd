@@ -153,7 +153,9 @@ Introduction of a semi-supervised approach for language understanding machine le
 Official paper from OpenAI to introduce OpenAI GPT-3. Emphasizes on the "fewer-shots" and "task-agnostic" aspects of the latest langual model compared to its predecessor GPT-2.
 
 
+## Discussion of how GPT-3 works
 
+**(Ke-Li - it would be good for us to go through how it actually works in as much detail as we can manage (in our own words). This is mostly just to force us to learn how it works and may be taken out of the final version of the paper, but it's still an important exercise.)**
 
 
 # References
