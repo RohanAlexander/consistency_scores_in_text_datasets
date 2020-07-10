@@ -12,14 +12,14 @@ header-includes:
   -  \usepackage{hyperref}
 biblio-style: apalike
 title: "Consistency scores in text data"
-thanks: "Our code and datasets are available at: X. Comments on the `r format(Sys.time(), '%d %B %Y')` version of this paper are welcome at: rohan.alexander@utoronto.ca."
+thanks: "A Shiny app for interactive and small-scale examples is available: HERE. An R package for larger scale applications is available: HERE. Our code and datasets are available: HERE. Comments on the `r format(Sys.time(), '%d %B %Y')` version of this paper are welcome at: rohan.alexander@utoronto.ca."
 author:
 - name: Rohan Alexander
   affiliation: University of Toronto
 - name: Ke-Li Chiu
   affiliation: University of Toronto  
-abstract: "In this paper we use GPT-3 to clean the text from PDFs by comparing the original text with the generated text. We also introduce the notion of a consistency score, which refers to the proporation of text that is unchanged by the model, and is used to monitor changes during an iterative cleaning process. We illustrate our process on text from the Canadian Hansard and develop a Shiny application and R package to make our procedure easier for others to use."
-keywords: "..."
+abstract: "In this paper we introduce a process to clean the text extracted from PDFs using GPT-3. Our approach compares originally extracted text with the text generated from GPT-3 using earlier text as stimulus. To guide this process, we introduce the notion of a consistency score, which refers to the proporation of text that is unchanged by the model. This is used to monitor changes during the cleaning process, and to compare the messiness of different texts. We illustrate our process on text from the Canadian Hansard and introduce both a Shiny application and an R package to make our process easier for others to adopt."
+keywords: "text-as-data; GPT-3; quantitative analysis; cleaning."
 date: "`r format(Sys.time(), '%B %d, %Y')`"
 geometry: margin=1in
 fontfamily: mathpazo
@@ -35,67 +35,27 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # Introduction
 
-When we think about a data science project, we may like to think that our job is to 'let the data speak'. But this is rarely the case in practise. Datasets can have errors, be biased, incomplete, or messy. In any case, it is the underlying statistical process of which the dataset is an artifact that is typically of interest. In order to use statistical models to understand that process we often need to prepare the dataset in some way. This is particularly the case when working with text. However, this process requires many decisions. Should we correct obvious errors? What about slightly-less-obvious errors? To what extent have we introduced new errors? Have we made decisions that have affected, or even driven, our results?
+When we think of quantitative analysis, we may like to think that our job is to 'let the data speak'. But this is rarely the case in practise. Datasets can have errors, be biased, incomplete, or messy. In any case, it is the underlying statistical process of which the dataset is an artifact that is typically of interest. In order to use statistical models to understand that process, we typically need to clean and prepare the dataset in some way. This is especially the case when we work with text data. But this cleaning and preparation requires us to make many decisions. To what extent should we correct obvious errors? What about slightly-less-obvious errors? Although cleaning and preparation is a necessary step, we may be concerned about the extent to which have we introduced new errors, and the possibility that we have made decisions that have affected, or even driven, our results.
 
-In this paper we introduce the concept of consistency for a text corpus. Consistency refers to the proportion of words that are able to be predicted by a trained model based on the previous words and surrounding context. Further, we define internal consistency as when the model is trained on the corpus itself, and external consistency as when the model is trained on a more general corpus. Together, these concepts provide a guide to the cleanliness and consistency of a text dataset. This can be important when deciding whether a dataset is fit for purpose; when carrying out data cleaning and preparation tasks; and as a comparison between datasets. 
+In this paper we introduce the concept of consistency in a text corpus. Consistency refers to the proportion of words that are able to be forecast by a statistical model, based on preceeding words and surrounding context. Further, we define internal consistency as when the model is trained on the corpus itself, and external consistency as when the model is trained on a more general corpus. Together, these concepts provide a guide to the cleanliness and consistency of a text dataset. This can be important when deciding whether a dataset is fit for purpose; when carrying out data cleaning and preparation tasks; and as a comparison between datasets.
 
-To provide an example, consider the sentence, 'the cat in the...'. A child who has read this book could tell you that the next word should be 'hat'. Hence if the sentence was actually 'the cat in the bat', then that child would know something was likely wrong. A consistency score would likely be lower than if the sentence were 'the cat in the hat'. After the researcher corrects this error, a consistency score would likely increase. By following how the consistency scores change during the data preparation and cleaning stages the researcher can better understand the effect of the changes. Including consistency scores when corpuses are shared allows researchers to be more transparent about their corpus. And finally, the use of consistency scores allows for automation in the cleaning process. 
+To provide an example, consider the sentence, 'the cat in the\dots'. A child who has read this book could tell you that the next word should be 'hat'. Hence if the sentence was actually 'the cat in the bat', then that child would know something was likely wrong. The consistency score would likely be lower than if the sentence were 'the cat in the hat'. After we correct this error, the consistency score would likely increase. By examining how the consistency scores evolve in response to changes made to the text during the data preparation and cleaning stages we can better understand the effect of the changes. Including consistency scores when text corpuses are shared allows researchers to be more transparent about their corpus. And finally, the use of consistency scores allows for an increased level of automation in the cleaning process. 
 
-We apply our approach to X (one option is a Hansard, but it's really big, so yeah, I don't really want to do that). Additionally, we construct a Shiny app that computes internal and external consistency scores for smaller corpuses and allows the researcher to make changes and see how it updates. 
+The model that we use to forecast is GPT-3 by OpenAI. OpenAI is... **(Ke-Li to add a two sentence summary in boring academic language)**. GPT-3 is... **(Ke-Li to add a three sentence summary in boring academic language)**.
 
-The remainder of our paper is structured as follows...
+We apply our approach to the Canadian Hansard. The Canadian Hansard was digitised by **(Rohan add ref)**. This was a process by which PDFs were scanned, put through optical character recognition (OCR), and then corrected to a reasonable extent. The dataset is extensive, fit-for-purpose, and, appropriately, it has been used considerably **(Rohan add refs)**. However, there are many issues with the dataset in terms of reading it. We focus on one particular year - **(Rohan pick one)** - and show that our approach can be used to relatively quickly improve the quality of the dataset in a reproducible and consistent manner.
+
+The remainder of our paper is structured as follows: **(Rohan add structure)**. Additionally, we construct a Shiny app available at: **(Rohan add link)**. That app computes internal and external consistency scores for corpus excerpts, and have developed an R Package that allows our approach to be used on larger datasets, which is available at: **(Rohan add link)**.
+
 
 
 # Background
 
-A typical data science workflow involves
+## PDF text extraction and n-grams
 
+PDFs contain a lot of information, but typically that information is not able to be analysed directly by statistical models. It needs to first be extracted from the PDF, often by optical character recognition (OCR), and then cleaned, prepared and made into some type of tabular dataset.
 
-Internal and external consistency
-
-/// Start of  OpenAI GPT-3 section ///
-
-In recent years, pre-trained language models have tremendous contributions in advancing natural language processing (NLP) tasks such as reading comprehension, text generation, and many others (citation). As the pre-trained models remove the need for researchers and technologists to train models from scratch, they promote faster growth and advancement int the field of NLP. OpenAI GPT-3 is the latest generative pre-trained language model released by OpenAI in 2020. With 175 billion parameters, GPT-3 is claimed to have the capacity to generate text that ressembles human creation (citation). GPT-2, the predecessor of GPT-3, employs a semi-supervised approach that combines unsupervised pre-training and supervised fine-tuning where task-specific data set and task-specific fine-tuning were still needed in achieving these tasks until the birth of GPT-3 (citation). GPT-3 removes such needs, and its task-agnostic nature enables the accessible creation of cutting-edge NLP applications.
-
-GPT-3 also learns like humans do — with brief directives and simple instructions...
-
-The task-agnostic feature also permits it to adapt to the style of the data being fed to it (citation).
-
-In our application, we deploy OpenAI GPT-3 to generate text and ...
-
-/// End of  OpenAI GPT-3 section ///
-
-### Article: Improving Language Understanding by Generative Pre-Training (2018)
-Introduction of a semi-supervised approach for language understanding machine learning tasks. The approach is the combinaiton of unsupervised pre-training and supervised fine-tuning. 
-
-### Article: Language Models are Few-Shot Learners (2020)
-Official paper from OpenAI to introduce OpenAI GPT-3. Emphasizes on the "fewer-shots" and "task-agnostic" aspects of the latest langual model compared to its predecessor GPT-2.
-
-
-
-# Stylized example
-
-As a stylized example, let's consider the following actual paragraph from Jane Eyre, by Charlotte Bronte:
-
-> There was no possibility of taking a walk that day. We had been wandering, indeed, in the leafless shrubbery an hour in the morning; but since dinner (Mrs. Reed, when there was no company, dined early) the cold winter wind had brought with it clouds so sombre, and a rain so penetrating, that further out-door exercise was now out of the question.
-
-Let's pretend that this text had been created from optical character recognition and that it had the following errors: some 'h' were replaced with 'b'; and some 'd' have been replaced with 'al': 
-
-> There was no possibility of taking a walk that day. We had been wandering, indeed, in tbe leafless shrubbery an hour in tbe morning; but since dinner (Mrs. Reeal, when tbere was no company, dined early) the cold winter wind had brought with it clouds so sombre, and a rain so penetrating, tbat further out-door exercise was now out of the question.
-
-Assume a model that is trained to perfectly forecast the next word in Jane Eyre. For this fragment there are 62 words, comprising 5 errors and 57 correct words. So the internal consistency score of this fragment would be: 57/62 = 0.919. When we recognise and correct the errors, this consistency score would increase to 1. 
-
-Similarly, assume a model that is trained on an external data source. This means that it will recognise the the cases where some 'h' were replaced with 'b', but not recognise that 'Reed' has become 'Reeal'. Hence, the external consistency score would be 58/62 = 0.935.
-
-
-
-# Models
-
-Various models can be used....
-
-## ngrams
-
-Traditionally, word-correction techniques evaluate errors one by one without considering the context of the surrounding words. This was no longer the case in modern correction techniques as statistical language models (SLMs) and feature-based methods have been used for context-sensitive correction (citation). Without exception, all human languages have some words that co-occur more frequently with others. Under this assumption, we can regard the production of English text as a set of conditional probabilities, written as Pr($w_{k}$ | $w^{k-1}_{1}$), where k is the number of words in a sentence, $w_{k}$ is the predicted word, and $w^{k-1}_{1}$ is the history of the word occurring in a sequence (citation). In other word, the generation of prediction $w_{k}$ is based on the history $w^{k-1}_{1}$. This conditional probability is the foundation of an n-gram language model.
+One issue in this process is that OCR is not perfect. Hence there is a need to correct the output before it can be analysed. Traditionally, word-correction techniques evaluate errors one by one without considering the context of the surrounding words. This was no longer the case in modern correction techniques as statistical language models (SLMs) and feature-based methods have been used for context-sensitive correction (citation). Without exception, all human languages have some words that co-occur more frequently with others. Under this assumption, we can regard the production of English text as a set of conditional probabilities, written as Pr($w_{k}$ | $w^{k-1}_{1}$), where k is the number of words in a sentence, $w_{k}$ is the predicted word, and $w^{k-1}_{1}$ is the history of the word occurring in a sequence (citation). In other word, the generation of prediction $w_{k}$ is based on the history $w^{k-1}_{1}$. This conditional probability is the foundation of an n-gram language model.
 
 An n-gram model is a probabilistic language model that predicts the next word in a sequence of words. The $n$ in n-gram represents the number of words in a sequence. Taking an incomplete sentence from the Jane Eyre excerpt as an example:
 
@@ -122,10 +82,39 @@ Embedding of sentences (sequence of words with semantic representations) composi
 
 
 
-## Something
+## Pre-trained language models
+
+Draw on and cite: 'Language Models are Few-Shot Learners'
+
+In recent years, the use of pre-trained language models has played a significant role in advancing natural language processing (NLP) tasks such as reading comprehension, text generation, and **X** **(Ke-Li add ref)**. Pre-trained models remove the need for researchers to create training datasets or devote computational resources to this stage. Because of this, there has been substantial development in NLP research.
+
+OpenAI's GPT-3 is a generative, pre-trained, task-agnostic, language model that was released by OpenAI in **Ke-Li add month** 2020 **(Ke-Li add ref)**. OpenAI is **(Ke-Li add background)**. GPT-3 is the **Ke-Li add number X** model publicly released by OpenAI. It has '175 billion parameters' and OpenAI claim that it as the 'capacity to generate text that ressembles human creation' **(Ke-Li add ref)**. Initial research has found... **(Ke-Li please find papers that use it, describe them, and add refs - look on arXiv)**.
+
+GPT-3 is pre-trained, and takes a sample of text as an input **(Ke-Li add more detail about what it needs and what it outputs and how it works).**. It adapts to the the style of the data that is used an input **(Ke-Li please find the language that they use for this and then we need to make ours consistent with theirs).** 
 
 
-## Soemthing else
+
+
+
+# Stylized example
+
+**(TODO: This stylized example need to be changed and updated to actually use GPT-3 at some point.)**
+
+In our application, we deploy OpenAI GPT-3 to generate text and ...
+
+As a stylized example, let's consider the following actual paragraph from Jane Eyre, by Charlotte Bronte:
+
+> There was no possibility of taking a walk that day. We had been wandering, indeed, in the leafless shrubbery an hour in the morning; but since dinner (Mrs. Reed, when there was no company, dined early) the cold winter wind had brought with it clouds so sombre, and a rain so penetrating, that further out-door exercise was now out of the question.
+
+Let's pretend that this text had been created from optical character recognition and that it had the following errors: some 'h' were replaced with 'b'; and some 'd' have been replaced with 'al': 
+
+> There was no possibility of taking a walk that day. We had been wandering, indeed, in tbe leafless shrubbery an hour in tbe morning; but since dinner (Mrs. Reeal, when tbere was no company, dined early) the cold winter wind had brought with it clouds so sombre, and a rain so penetrating, tbat further out-door exercise was now out of the question.
+
+Assume a model that is trained to perfectly forecast the next word in Jane Eyre. For this fragment there are 62 words, comprising 5 errors and 57 correct words. So the internal consistency score of this fragment would be: 57/62 = 0.919. When we recognise and correct the errors, this consistency score would increase to 1. 
+
+Similarly, assume a model that is trained on an external data source. This means that it will recognise the the cases where some 'h' were replaced with 'b', but not recognise that 'Reed' has become 'Reeal'. Hence, the external consistency score would be 58/62 = 0.935.
+
+
 
 
 
@@ -146,6 +135,24 @@ Internal validity vs external- one is their own words the other is a general set
 
 
 In the same way that precision and recall provide important measures…
+
+
+
+
+# Appendix
+
+## Literature summaries
+
+(These are just here for now - we'll remove later.)
+
+
+### Article: Improving Language Understanding by Generative Pre-Training (2018)
+Introduction of a semi-supervised approach for language understanding machine learning tasks. The approach is the combinaiton of unsupervised pre-training and supervised fine-tuning. 
+
+### Article: Language Models are Few-Shot Learners (2020)
+Official paper from OpenAI to introduce OpenAI GPT-3. Emphasizes on the "fewer-shots" and "task-agnostic" aspects of the latest langual model compared to its predecessor GPT-2.
+
+
 
 
 
