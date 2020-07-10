@@ -1,7 +1,6 @@
+library(shiny)
+library(tidyverse) # tidyverse is needed for hardcoding string replacement, may be removed once we move to next phase
 source("text-input.R")
-
-# tidyverse is needed for hardcoding string replacement, may be removed once we move to next phase
-library(tidyverse)
 
 function(input, output, session) {
   # Fucntion that displays input text when get result button is clicked
@@ -43,3 +42,5 @@ function(input, output, session) {
 
 
 }
+library(shiny)
+runGitHub("consistency_scores_in_text_datasets", "RohanAlexander", subdir = "shinyapp/")
