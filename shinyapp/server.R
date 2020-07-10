@@ -39,8 +39,4 @@ function(input, output, session) {
     input$clear
     updateTextInput(session, "myText", value = "")
   })
-
-
 }
-library(shiny)
-runUrl("https://github.com/RohanAlexander/consistency_scores_in_text_datasets/tree/master/shinyapp.zip")
