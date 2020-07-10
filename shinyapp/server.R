@@ -1,14 +1,46 @@
+library(shiny)
+library(tidyverse) # tidyverse is needed for hardcoding string replacement, may be removed once we move to next phase
+source("text-input.R")
+
 function(input, output, session) {
-
+  # Fucntion that displays input text when get result button is clicked
+  getText <- eventReactive(input$getResult, {
+    # Hardcode text correction by replacing typos manually
+    str_replace_all(input$myText, c("Reeal" = "Reed", "tbere" = "there", "tbat" = "that"))
+  })
+  # Displays input text
   output$outputText <- renderText({
-    as.character(input$my_text)
+    getText()
   })
 
+  # Fucntion that displays scores when get result button is clicked
+    getScores <- eventReactive(input$getResult, {
+    "Internal consistency score: 0.919 <br> External consistency score: 0.956"
+  })
+  # Displays scores
+  output$outputScores <- renderText({
+    getScores()
+  })
+
+  # Disable get result button and clear button when there is no text data
   observe({
-    # Run whenever clear button is pressed
-    input$clear
-
-    # Send an update to my_text, resetting its value
-    updateTextInput(session, "my_text", value = "")
+    toggleState(id = "getResult", condition = nchar(input$myText) > 0)
+    toggleState(id = "clear", condition = nchar(input$myText) > 0)
   })
+
+  # Load demo data when the corresponding button is clicked
+  observe({
+    input$loadDemo
+    updateTextInput(session, "myText", value = demoInput)
+  })
+
+  # Clear text input area
+  observe({
+    input$clear
+    updateTextInput(session, "myText", value = "")
+  })
+
+
 }
+library(shiny)
+runUrl("https://github.com/RohanAlexander/consistency_scores_in_text_datasets/tree/master/shinyapp.zip")
