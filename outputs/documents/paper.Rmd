@@ -63,9 +63,17 @@ An n-gram model is a probabilistic language model that predicts the next word in
 
 "We" is a unigram, "We had" is a bigram, "We had been" is a trigram, and "We had been wandering" is a 4-gram. On the other hand, the trigrams of the excerpt are "We had been," and "had been wandering." The overlapping chaining of words reveals the statistical behaviour in human language. Moreover, N-gram then enables us to assign a probability to the occurrence of a sequence of words or the likelihood of a word occurring next. Consider the two sentences: "We had been wandering," and "We had been wangling." The former is likely to be more frequently encountered in a training corpus. Thus, the n-gram would assign a higher probability to "wandering" than to "wangling."
 
-[Statistic notation of n-gram?]
+The probability of a sequence appearing in a corpus follows the chain rules:
 
-[Character-level n-gram?]
+> P(We,had,been,wandering) $=$ P(We)$\cdot$P(had|We)$\cdot$P(been|We,had)$\cdot$P(wandering|We,had,been)
+
+This will soon grow weary if the sentences are long. Instead, the Markov assumption permits us to approximate the probability using only the last $n$ words. More specifically:
+
+> P(We,had,been,wandering)$\approx$ P(We)$\cdot$P(had|We)$\cdot$P(been|had)$\cdot$P(wandering|been)
+
+Simplified and formalized to:
+
+> P($w^{n}_{1}) \approx$ P($w_{1}$) $\cdot$ P($w_{2} | w_{1}$) ... P($w_{n} | w_{n-1}$)
 
 The application of n-gram is versatile. N-gram is widely applied in text prediction, spelling-correction, machine translation...
 
