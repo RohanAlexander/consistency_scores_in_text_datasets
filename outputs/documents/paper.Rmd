@@ -63,19 +63,19 @@ An n-gram model is a probabilistic language model that predicts the next word in
 
 "We" is a unigram, "We had" is a bigram, "We had been" is a trigram, and "We had been wandering" is a 4-gram. On the other hand, the trigrams of the excerpt are "We had been," and "had been wandering." The overlapping chaining of words reveals the statistical behaviour in human language. Moreover, N-gram then enables us to assign a probability to the occurrence of a sequence of words or the likelihood of a word occurring next. Consider the two sentences: "We had been wandering," and "We had been wangling." The former is likely to be more frequently encountered in a training corpus. Thus, the n-gram would assign a higher probability to "wandering" than to "wangling."
 
-The probability of a sequence appearing in a corpus follows the chain rules:
+To predict a word appearing next, we have to take the sequence of preceeding words into account, which requires knowing the probability of the sequence of words. The probability of a sequence appearing in a corpus follows the chain rules:
 
 > P(We,had,been,wandering) $=$ P(We)$\cdot$P(had|We)$\cdot$P(been|We,had)$\cdot$P(wandering|We,had,been)
 
-This will soon grow weary if the sentences are long. Instead, the Markov assumption permits us to approximate the probability using only the last $n$ words. More specifically:
+However, the likelihood that more and more words will occur next to each other in an indentical sequence becomes smaller and smaller, making the prediction difficult. Instead, the Markov assumption permits us to approximate the probability using only the last $n$ words **(Keli add citation)**. More specifically
 
 > P(We,had,been,wandering)$\approx$ P(We)$\cdot$P(had|We)$\cdot$P(been|had)$\cdot$P(wandering|been)
 
-Simplified and formalized to:
+Because the bigram model looks into one word in the past, the n-gram under Markov assumption can then be generalized into a bigram model with n being any number. The general equation is
 
-> P($w^{n}_{1}) \approx$ P($w_{1}$) $\cdot$ P($w_{2} | w_{1}$) ... P($w_{n} | w_{n-1}$)
+P($w_{n} | w^{n-1}_{1}) \approx$ P($w_{n} | w^{n-1}_{n - N+1})$)
 
-The application of n-gram is versatile. N-gram is widely applied in text prediction, spelling-correction, machine translation...
+The application of n-gram is versatile. N-gram is widely applied in text prediction, spelling-correction, machine translation. We use n-gram to [add how we use n-gram once the functions in the app are in place]
 
 
 
