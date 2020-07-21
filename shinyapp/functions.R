@@ -1,60 +1,137 @@
 library(tidyverse)
 library(tau)
 library(tm)
-library(hash)
+library(stringr)
+library(stats)
 
-message("load data...")
-message(Sys.time())
-setwd(getSrcDirectory(function(){}))
+#setwd("~/Desktop/repos/consistency_scores_in_text_datasets/shinyapp")
 
-# Load training text
-blog.sample <- readLines("samples/*.txt")
+demoTraining <- "There was no possibility of taking a walk that day. 
+We had been wandering, indeed, in the leafless shrubbery an hour in the morning; 
+but since dinner (Mrs. Reed, when there was no company, dined early) 
+the cold winter wind had brought with it clouds so sombre, and a rain so penetrating, 
+that further out-door exercise was now out of the question."
 
-# Divide the data to 50 batches to speed up n-gram processing later
-nbatch <- 50
-blog.len <- ceiling(length(blog.sample) / nbatch)
+tokenizer <- function(lines) {
+  lines <- tolower(lines)
+  lines <- gsub("'", "'", lines)
+  #lines <- gsub("[.!?]$|[.!?] |$", " ''split'' ", lines)
+  tokens <- unlist(strsplit(lines, "[^a-z']"))
+  tokens <- tokens[tokens != ""]
+  return(tokens)
+}
+demoTraining <- tokenizer(demoTraining)
+unigrams <- textcnt( demoTraining, n=1, method = "string", decreasing = TRUE)
+bigrams  <- textcnt( demoTraining, n=2, method = "string", decreasing = TRUE)
+trigrams <- textcnt( demoTraining, n=3, method = "string", decreasing = TRUE)
 
-# Build functions to preprocess the text by removing non-English characters, twitter handles and urls
-removeURL <- function(x) gsub("http\\S+", "", x)
-removeHash <- function(x) gsub("[@#&]\\S+", "", x)
-removeNumPunct <- function(x) gsub("[^A-z[:space:]']*", "", x)
+userInput <- "There was no possibility of taking a walk that day. 
+We had been wandering, indeed, in the leafless shrubbery an hour in the morning; 
+but since dinner (Mrs. Reed, when there was no company, dined early) 
+the cold winter wind had brought with it clouds so sombre, and a rain so penetrating, 
+that further out-door exercise was now out of the question."
+userInput <- tokenizer(userInput)
+ui_unigrams <- textcnt( userInput, n=1, method = "string", decreasing = TRUE)
+ui_bigrams  <- textcnt( userInput, n=2, method = "string", decreasing = TRUE)
+ui_trigrams <- textcnt( userInput, n=3, method = "string", decreasing = TRUE)
+userInputNgram <- ui_trigrams
 
-# Build the n-gram
-h <- hash()
+### ngram probability
+getLastWords <- function(string, words) {
+  pattern <- paste("[a-z']+( [a-z']+){", words - 1, "}$", sep="")
+  return(substring(string, str_locate(string, pattern)[,1]))
+}
+removeLastWord <- function(string) {
+  sub(" [a-z']+$", "", string)
+}
 
-# Loop over the batches
-for (b in 1:nbatch -1) {
-  message(sprintf("Processing the %i-th batch", b))
+# Kneser-Ney Smoothing
+kneserNay <- function(ngrams, d) {
+  n <- length(strsplit(names(ngrams[1]), " ")[[1]])
+  # Special case for unigrams
+  if(n==1) {
+    noFirst <- unigrams[getLastWords(names(bigrams), 1)]
+    pContinuation <- table(names(noFirst))[names(unigrams)] / length(bigrams)
+    return(pContinuation)
+  }
   
-  #concatenate text and preprocess
-  blog <- blog.sample[blog.len * b + (1 : blog.len)]
-  trainingText <- blog %>%
-    removeURL() %>% removeHash() %>% removeNumPunct() %>% tolower() %>% stripWhitespace()
+  # Get needed counts
+  nMinusOne <- list(unigrams, bigrams, trigrams)[[n-1]]
+  noLast <- nMinusOne[removeLastWord(names(ngrams))]
+  noFirst <- nMinusOne[getLastWords(names(ngrams), n-1)]
+  
+  # Calculate discounts, lambda and pContinuation
+  discounts <- ngrams - d
+  discounts[discounts < 0] <- 0
+  lambda <- d * table(names(noLast))[names(noLast)] / noLast
+  if(n == 2) pContinuation <- table(names(noFirst))[names(noFirst)] / length(ngrams)
+  else pContinuation <- kneserNay(noFirst, d)
+  
+  # Put it all together
+  probabilities <- discounts / noLast + lambda * pContinuation / length(ngrams)
+  return(probabilities)
+}
 
-  # Get trigrams
-  trigram <- textcnt( trainingText, n=3, split=" ", method = "string", decreasing = TRUE)
+unigramProbs <- kneserNay(unigrams, 0.75)
+bigramProbs <- kneserNay(bigrams, 0.75)
+trigramProbs <- kneserNay(trigrams, 0.75)
 
-  # Create hash table for fast prediction
-  for (i in 1: length(trigram)) {
-    if (trigram[i] < 4) {
-      break
+createModel <- function(n, threshold,userInputNgram ) {
+  ngrams <- list(bigramProbs, trigramProbs)[[n-1]]
+  model <- ngrams[getLastWords(names(userInputNgram), n-1)]
+  names(model) <- names(userInputNgram)
+  if(n > 3) model[is.na(model) | model < threshold] <- 
+    trigramProbs[getLastWords(names(model[is.na(model) | model < threshold]), 3)]
+  if(n > 2) model[is.na(model) | model < threshold] <- 
+    bigramProbs[getLastWords(names(model[is.na(model) | model < threshold]), 2)]
+  if(n > 1) model[is.na(model) | model < threshold] <- 
+    unigramProbs[getLastWords(names(model[is.na(model) | model < threshold]), 1)]
+  return(model)
+}
+
+library(data.table)
+
+unigramDF <- data.table("Words" = (names(unigrams)), "Probability" = unigramProbs, stringsAsFactors=F)
+
+bigramsDF <- data.table("FirstWords" = removeLastWord(names(bigrams)), 
+                        "LastWord" = getLastWords(names(bigrams), 1), 
+                        "Probability" = bigramProbs, stringsAsFactors=F)
+
+trigramsDF <- data.table("FirstWords" = removeLastWord(names(trigrams)), 
+                         "LastWord" = getLastWords(names(trigrams), 1), 
+                         "Probability" = trigramProbs, stringsAsFactors=F)
+
+
+library(dplyr)
+# unigramDF <- (unigramDF %>% arrange(desc(Probability)))
+bigramsDF <- bigramsDF %>% arrange(desc(Probability)) %>% dplyr::filter(Probability > 0.0001)
+trigramsDF <- trigramsDF %>% arrange(desc(Probability)) %>% dplyr::filter(Probability > 0.0001)
+
+detector <- function(input) {
+  input <- input
+  inputTrigrams <- textcnt( input, n=3, method = "string", decreasing = TRUE)
+  for (trigram in names(inputTrigrams)) {
+    firstWords <- removeLastWord(trigram)
+    lastWord <- getLastWords(trigram, 1)
+    if(!(lastWord %in% dplyr::filter(trigramsDF, firstWords == FirstWords)$LastWord)){
+      print(lastWord)
+      correct <- paste(dplyr::filter(trigramsDF, firstWords == FirstWords)$FirstWords,dplyr::filter(trigramsDF, firstWords== FirstWords)$LastWord)
+      return(correct)
     } else {
-      gram <- strsplit(names(trigram[i]), split = ' ')[[1]]
-      history <- paste0(gram[1:2], collapse = ' ')
-      candidate <- gram[3]
-      count <- trigram[[i]]
-      if (candidate %in% h[[history]]$candidate) {
-        index <- h[[history]]$candidate == candidate
-        h[[history]]$count[index] <- h[[history]]$count[index] + count
-      } else {
-        h[[history]]$candidate <- c(h[[history]]$candidate, candidate)
-        h[[history]]$count <- c(h[[history]]$count, count)
-      }
+      return(input)
     }
   }
-  gc()
+  return(input)
 }
-if (1) {
-  save(h, file = "hashtable.Rdata")
+
+predictor <- function(input) {
+  n <- length(strsplit(input, " ")[[1]])
+  prediction <- c()
+  if(n >= 2 && length(prediction)<3) 
+    prediction <- c(prediction, stats::filter(trigramsDF, getLastWords(input, 2) == FirstWords)$LastWord)
+  if(n >= 1 && length(prediction)<3) 
+    prediction <- c(prediction, stats::filter(bigramsDF, getLastWords(input, 1) == FirstWords)$LastWord)
+  # if(length(prediction)<3 ) prediction <- c(prediction, unigramDF$Words)
+  return(unique(prediction)[1:3])
 }
 

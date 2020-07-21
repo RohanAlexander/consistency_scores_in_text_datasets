@@ -5,9 +5,6 @@ library(shiny)
 library(tidyverse)
 library(tau)
 library(tm)
-library(hash)
-#source("functions.R")
-#load("hashtable.Rdata")
 
 fluidPage(
   useShinyjs(),

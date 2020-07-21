@@ -1,31 +1,14 @@
 library(tidyverse)
 library(tau)
 library(tm)
-library(hash)
 source("text-input.R")
-load("hashtable.Rdata")
+source("functions.R")
+
 server <- function(input, output, session) {
   getText <- eventReactive(input$getResult, {
     myText <- trimws(input$myText)
     myText <- gsub('\\s+', ' ', myText)
-    pred.sentence <- paste(myText, "...")
-    words <- strsplit(tolower(myText), split = ' ')[[1]]
-    if (length(words) >= 2) {
-      history <- paste0(tail(words, 2), collapse = ' ')
-      candidates <- h[[history]]$candidate
-      candidates[candidates == 'i'] <- 'I'
-      if (length(candidates)) {
-        maxDisplay <- min(5, length(candidates))
-        for (i in 1:maxDisplay) {
-          pred.sentence <- paste(pred.sentence,
-                                 paste(candidates[i], sep = ' '),
-                                 sep = '\n')
-        }
-      }
-      pred.sentence
-    } else {
-      myText
-    }
+    detector(myText)
   })
   
   # Displays input text
@@ -60,5 +43,4 @@ server <- function(input, output, session) {
     input$clear
     updateTextInput(session, "myText", value = "")
   })
-  
 }
