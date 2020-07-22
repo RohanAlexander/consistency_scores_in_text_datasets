@@ -5,36 +5,37 @@ library(stringr)
 library(stats)
 
 #setwd("~/Desktop/repos/consistency_scores_in_text_datasets/shinyapp")
+path <- getwd()
+demoTraining <- readLines(paste(path,"/samples/demo.txt", sep=""), warn=FALSE)
 
-demoTraining <- "There was no possibility of taking a walk that day. 
-We had been wandering, indeed, in the leafless shrubbery an hour in the morning; 
-but since dinner (Mrs. Reed, when there was no company, dined early) 
-the cold winter wind had brought with it clouds so sombre, and a rain so penetrating, 
-that further out-door exercise was now out of the question."
-
-tokenizer <- function(lines) {
+tokenizer <- function(corpus) {
+  lines <- vector()
+  
+  # Read the corpus line by line
+  for (line in corpus) {
+    # add two start-of-sentence tokens to the beginning of a sentence
+    # line <- paste("<s> <s>", line)
+    lines <-c(lines, line)
+  }
+  
   lines <- tolower(lines)
-  lines <- gsub("'", "'", lines)
-  #lines <- gsub("[.!?]$|[.!?] |$", " ''split'' ", lines)
-  tokens <- unlist(strsplit(lines, "[^a-z']"))
+  lines <- gsub("[.!?]$|[.!?] |$", " </s>", lines) # add end-of-sentence token to the end of a sentence
+  tokens <- unlist(strsplit(lines, "[^a-z<>/]"))
   tokens <- tokens[tokens != ""]
   return(tokens)
 }
-demoTraining <- tokenizer(demoTraining)
-unigrams <- textcnt( demoTraining, n=1, method = "string", decreasing = TRUE)
-bigrams  <- textcnt( demoTraining, n=2, method = "string", decreasing = TRUE)
-trigrams <- textcnt( demoTraining, n=3, method = "string", decreasing = TRUE)
 
-userInput <- "There was no possibility of taking a walk that day. 
-We had been wandering, indeed, in the leafless shrubbery an hour in the morning; 
-but since dinner (Mrs. Reed, when there was no company, dined early) 
-the cold winter wind had brought with it clouds so sombre, and a rain so penetrating, 
-that further out-door exercise was now out of the question."
-userInput <- tokenizer(userInput)
-ui_unigrams <- textcnt( userInput, n=1, method = "string", decreasing = TRUE)
-ui_bigrams  <- textcnt( userInput, n=2, method = "string", decreasing = TRUE)
-ui_trigrams <- textcnt( userInput, n=3, method = "string", decreasing = TRUE)
-userInputNgram <- ui_trigrams
+tokens <- tokenizer(demoTraining)
+
+library(data.table)
+unigrams <- textcnt( tokens, n=1, method = "string", decreasing = TRUE)
+bigrams  <- textcnt( tokens, n=2, method = "string", decreasing = TRUE)
+trigrams <- textcnt( tokens, n=3, method = "string", split = "[[:space:][:digit:]]+", decreasing = TRUE)
+
+# Remove trigram that has "</s>" in it, so the trigrams are constructed within a sentence
+unigrams <- unigrams[!grepl("</s>", names(unigrams))]
+bigrams <-   bigrams[!grepl("</s>", names(bigrams))]
+trigrams <- trigrams[!grepl("</s>", names(trigrams))]
 
 ### ngram probability
 getLastWords <- function(string, words) {
@@ -76,62 +77,34 @@ unigramProbs <- kneserNay(unigrams, 0.75)
 bigramProbs <- kneserNay(bigrams, 0.75)
 trigramProbs <- kneserNay(trigrams, 0.75)
 
-createModel <- function(n, threshold,userInputNgram ) {
-  ngrams <- list(bigramProbs, trigramProbs)[[n-1]]
-  model <- ngrams[getLastWords(names(userInputNgram), n-1)]
-  names(model) <- names(userInputNgram)
-  if(n > 3) model[is.na(model) | model < threshold] <- 
-    trigramProbs[getLastWords(names(model[is.na(model) | model < threshold]), 3)]
-  if(n > 2) model[is.na(model) | model < threshold] <- 
-    bigramProbs[getLastWords(names(model[is.na(model) | model < threshold]), 2)]
-  if(n > 1) model[is.na(model) | model < threshold] <- 
-    unigramProbs[getLastWords(names(model[is.na(model) | model < threshold]), 1)]
-  return(model)
-}
-
 library(data.table)
 
-unigramDF <- data.table("Words" = (names(unigrams)), "Probability" = unigramProbs, stringsAsFactors=F)
-
+unigramDF <- data.table("Words" = (names(unigrams)), 
+                        "Probability" = as.vector(unigramProbs), stringsAsFactors=F)
 bigramsDF <- data.table("FirstWords" = removeLastWord(names(bigrams)), 
                         "LastWord" = getLastWords(names(bigrams), 1), 
-                        "Probability" = bigramProbs, stringsAsFactors=F)
-
+                        "Probability" = as.vector(bigramProbs), stringsAsFactors=F)
 trigramsDF <- data.table("FirstWords" = removeLastWord(names(trigrams)), 
                          "LastWord" = getLastWords(names(trigrams), 1), 
-                         "Probability" = trigramProbs, stringsAsFactors=F)
+                         "Probability" = as.vector(trigramProbs), stringsAsFactors=F)
 
 
 library(dplyr)
-# unigramDF <- (unigramDF %>% arrange(desc(Probability)))
-bigramsDF <- bigramsDF %>% arrange(desc(Probability)) %>% dplyr::filter(Probability > 0.0001)
-trigramsDF <- trigramsDF %>% arrange(desc(Probability)) %>% dplyr::filter(Probability > 0.0001)
+unigramDF <-  unigramDF %>% arrange(desc(Probability))
+bigramsDF <-  bigramsDF %>% arrange(desc(Probability)) %>% filter(Probability > 0.0001)
+trigramsDF <- trigramsDF %>% arrange(desc(Probability)) %>% filter(Probability > 0.0001)
 
 detector <- function(input) {
   input <- input
   inputTrigrams <- textcnt( input, n=3, method = "string", decreasing = TRUE)
+  correct <- input
   for (trigram in names(inputTrigrams)) {
     firstWords <- removeLastWord(trigram)
     lastWord <- getLastWords(trigram, 1)
     if(!(lastWord %in% dplyr::filter(trigramsDF, firstWords == FirstWords)$LastWord)){
-      print(lastWord)
       correct <- paste(dplyr::filter(trigramsDF, firstWords == FirstWords)$FirstWords,dplyr::filter(trigramsDF, firstWords== FirstWords)$LastWord)
-      return(correct)
-    } else {
-      return(input)
-    }
+    } 
   }
-  return(input)
-}
-
-predictor <- function(input) {
-  n <- length(strsplit(input, " ")[[1]])
-  prediction <- c()
-  if(n >= 2 && length(prediction)<3) 
-    prediction <- c(prediction, stats::filter(trigramsDF, getLastWords(input, 2) == FirstWords)$LastWord)
-  if(n >= 1 && length(prediction)<3) 
-    prediction <- c(prediction, stats::filter(bigramsDF, getLastWords(input, 1) == FirstWords)$LastWord)
-  # if(length(prediction)<3 ) prediction <- c(prediction, unigramDF$Words)
-  return(unique(prediction)[1:3])
+  return(correct)
 }
 
