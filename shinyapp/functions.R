@@ -14,7 +14,7 @@ tokenizer <- function(corpus) {
   # Read the corpus line by line
   for (line in corpus) {
     # add two start-of-sentence tokens to the beginning of a sentence
-    # line <- paste("<s> <s>", line)
+    line <- paste("<s> <s>", line)
     lines <-c(lines, line)
   }
   
@@ -28,8 +28,8 @@ tokenizer <- function(corpus) {
 tokens <- tokenizer(demoTraining)
 
 library(data.table)
-unigrams <- textcnt( tokens, n=1, method = "string", decreasing = TRUE)
-bigrams  <- textcnt( tokens, n=2, method = "string", decreasing = TRUE)
+unigrams <- textcnt( tokens, n=1, method = "string", split = "[[:space:][:digit:]]+", decreasing = TRUE)
+bigrams  <- textcnt( tokens, n=2, method = "string", split = "[[:space:][:digit:]]+", decreasing = TRUE)
 trigrams <- textcnt( tokens, n=3, method = "string", split = "[[:space:][:digit:]]+", decreasing = TRUE)
 
 # Remove trigram that has "</s>" in it, so the trigrams are constructed within a sentence
@@ -90,21 +90,30 @@ trigramsDF <- data.table("FirstWords" = removeLastWord(names(trigrams)),
 
 
 library(dplyr)
-unigramDF <-  unigramDF %>% arrange(desc(Probability))
-bigramsDF <-  bigramsDF %>% arrange(desc(Probability)) %>% filter(Probability > 0.0001)
+unigramDF <- (unigramDF %>% arrange(desc(Probability)))
+bigramsDF <- bigramsDF %>% arrange(desc(Probability)) %>% filter(Probability > 0.0001)
 trigramsDF <- trigramsDF %>% arrange(desc(Probability)) %>% filter(Probability > 0.0001)
 
 detector <- function(input) {
-  input <- input
-  inputTrigrams <- textcnt( input, n=3, method = "string", decreasing = TRUE)
-  correct <- input
+  inputCopy <- unlist(strsplit(input, "\n")) # split the input by sentences
+  tokens <- tokenizer(inputCopy)
+  # Turn input text to trigrams
+  inputTrigrams <- textcnt( tokens, n=3, method = "string", split = "[[:space:][:digit:]]+", decreasing = TRUE)
+  inputTrigrams <- inputTrigrams[!grepl("</s>", names(inputTrigrams))]
+  print(inputTrigrams)
+  correctSentence <- vector()
+  
   for (trigram in names(inputTrigrams)) {
     firstWords <- removeLastWord(trigram)
     lastWord <- getLastWords(trigram, 1)
     if(!(lastWord %in% dplyr::filter(trigramsDF, firstWords == FirstWords)$LastWord)){
-      correct <- paste(dplyr::filter(trigramsDF, firstWords == FirstWords)$FirstWords,dplyr::filter(trigramsDF, firstWords== FirstWords)$LastWord)
-    } 
+      correctWord <- dplyr::filter(trigramsDF, firstWords== FirstWords)$LastWord
+      print(correctSequence)
+    }# else {
+      #return(input)
+    #}
   }
-  return(correct)
+  return(correctSequence)
 }
+detector("wo had arwg")
 
