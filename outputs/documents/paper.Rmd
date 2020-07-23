@@ -99,19 +99,10 @@ In recent years, the use of pre-trained language models has played a significant
 OpenAI's GPT-3 is a generative, pre-trained, task-agnostic, language model that was released by OpenAI in June 2020 **(Ke-Li add ref)**. OpenAI is an AI research company who openly pursues Artificial General Intelligence—to have machines learn and understand any intellectual tasks as human do **(Ke-Li add ref)**. GPT-3 is the third Generative Pre-trained Transformer language model publicly released by OpenAI. It has '175 billion parameters' and can learn NLP tasks with just a few examples. OpenAI claims that the text generation by GPT-3 is 'difficult for humans to distinguish from authentic human content' **(Ke-Li add ref)**. Since the API of GPT-3 at the moment is only available to a few invited users, public applications of GPT-3 are limited. On the other hand, its predecessor, GPT-2, has enabled researchers made breakthroughs in the past years. Alt, Hubner and Henning extended GPT-2 to relation extraction, which is a task of identifying the relationship between concepts appeared in text. They had shown a milestone in predicting larger range of distinct relation types with higher confidence **(Ke-Li add ref)**. In the field of speech recognition, data scarcity is often an issue due to the difficulty to collect large amount of data from human for learning **(Ke-Li add ref)**. Bird, Faria, Ekart, Premebida and Ayrosa employed GPT-2 as part of the solution to generate augmented data for classification. GPT-2 also helped NLP researchers tackling the task of textual paraphrasing **(Ke-Li add ref)**. Hedge and Patil used GPT-2 to build an unsupervised paraphrasing model that is not restricted by domain shift within an article, which is a problem faced by the usual supervised models of paraphrasing.  
 **(Ke-Li please find papers that use it, describe them, and add refs - look on arXiv)**. 
 
-The above examples using GPT-2 were task-agnostic but they were in need of fine-tuning.
-These parameters refer to the weights of the connections that enable the neural network to learn **(Keli add citation)**. GPT-3 can learn NLP tasks with few examples and without any task-specific dataset **(Keli add citation)**.
+GPT is a Transformer-based model that has over 175 billions of parameters. **(Keli add citation)**. Proposed by Vaswani et al., the Transformer is a novel network architecture that outperforms RNN-based models in computational efficiency **(Keli add citation)**. The parameters refer to the weights of the connections that enable the neural network to learn **(Keli add citation)**. In recent years, the growth of parameters of transformer language models expands rapidly which accelerate the improvements in text synthesis and downstream NLP tasks **(Keli add citation)**. 
 
-
-GPT-3 is pre-trained, and takes a sample of text as an input **(Ke-Li add more detail about what it needs and what it outputs and how it works).**. 
+GPT-3 can learn NLP tasks with few examples and without any task-specific dataset **(Keli add citation)**. OpenAI refers this ability as few-shot learning. GPT-3 is pre-trained, and takes a sample of text as an input **(Ke-Li add more detail about what it needs and what it outputs and how it works).**. 
 **(Ke-Li please find the language that they use for this and then we need to make ours consistent with theirs).** 
-
-Deep language representations, e.g. those
-learned by the Transformer (Vaswani et al., 2017)
-via language modeling (Radford et al., 2018),
-have been shown to implicitly capture useful semantic and syntactic properties of text solely by
-arXiv:1906.08646v1 [cs.CL] 19 Jun 2019
-unsupervised pre-training (Peters et al., 2018)
 
 # Stylized example
 
