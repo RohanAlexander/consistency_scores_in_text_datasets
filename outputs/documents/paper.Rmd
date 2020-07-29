@@ -51,13 +51,16 @@ The remainder of our paper is structured as follows: **(Rohan add structure)**. 
 
 # Background
 
+## Statistical Language Model
+
+Without exception, all human languages have some words that co-occur more frequently with others. Under this assumption, we can regard the production of English text as a set of conditional probabilities, written as Pr($w_{k}$ | $w^{k-1}_{1}$), where k is the number of words in a sentence, $w_{k}$ is the predicted word, and $w^{k-1}_{1}$ is the history of the word occurring in a sequence (@brown1992class). In other word, the generation of prediction $w_{k}$ is based on the history $w^{k-1}_{1}$; this is the overarching principle of all language models. Essentially, a language model is the probability distribution over sequences of words **(Ke-Li add ref)**. The goal of statistical language modeling is to estimate the probability distribution of different linguistic units — words, sentences, and even documents **(Ke-Li add ref)**. However, this is fundamentally difficult because language is categorical. If we see each word in a set of vocabulary as a category, the dimensions of language is extremely high (@rosenfeld2000two). In the course of statistical language model development, [how n-gram, word embedding, transformers tackle this].
+
+
 ## PDF text extraction and n-grams
 
-PDFs contain a lot of information, but typically that information is not able to be analysed directly by statistical models. It needs to first be extracted from the PDF, often by optical character recognition (OCR), and then cleaned, prepared and made into some type of tabular dataset.
+PDFs contain a lot of information, but typically that information is not able to be analysed directly by statistical models. It needs to first be extracted from the PDF, often by optical character recognition (OCR), and then cleaned, prepared and made into some type of tabular dataset. One issue in this process is that OCR is not perfect. Hence there is a need to correct the output before it can be analysed. Traditionally, word-correction techniques evaluate errors one by one without considering the context of the surrounding words. This was no longer the case in modern correction techniques as statistical language models (SLMs) and feature-based methods have been used for context-sensitive correction (citation). 
 
-One issue in this process is that OCR is not perfect. Hence there is a need to correct the output before it can be analysed. Traditionally, word-correction techniques evaluate errors one by one without considering the context of the surrounding words. This was no longer the case in modern correction techniques as statistical language models (SLMs) and feature-based methods have been used for context-sensitive correction (citation). Without exception, all human languages have some words that co-occur more frequently with others. Under this assumption, we can regard the production of English text as a set of conditional probabilities, written as Pr($w_{k}$ | $w^{k-1}_{1}$), where k is the number of words in a sentence, $w_{k}$ is the predicted word, and $w^{k-1}_{1}$ is the history of the word occurring in a sequence (@brown1992class). In other word, the generation of prediction $w_{k}$ is based on the history $w^{k-1}_{1}$. This conditional probability is the foundation of an n-gram language model.
-
-An n-gram model is a probabilistic language model that predicts the next word in a sequence of words. The $n$ in n-gram represents the number of words in a sequence. Taking an incomplete sentence from the Jane Eyre excerpt as an example:
+This conditional probability of the language model is the foundation of an n-gram language model. An n-gram model is a probabilistic language model that predicts the next word in a sequence of words. The $n$ in n-gram represents the number of words in a sequence. Taking an incomplete sentence from the Jane Eyre excerpt as an example:
 
 > "We had been wandering,"
 
@@ -77,15 +80,28 @@ Because the bi-gram model looks only the immediate preceding word, an n-gram mod
 
 The application of n-gram is versatile. N-gram models are widely applied in text prediction, spelling-correction, machine translation **(Keli add citation)**. In our application, we use a tri-gram based model to detect both real-word and non-word errors and correct them with the candidate word that has the highest probability. [add more about how we use n-gram once the functions in the app are in place]
 
-## Word Embedding Models: GloVe and Word2Vec
+The n-gram models work do not take the linguistic structure of language into account. As @rosenfeld2000two pointed out, "... it may as well be a sequence of arbitrary symbols, with no deep structure, intention or thought behind". The prediction of the next word is only from a few words that are immediately preceding; the context is not taking into account. For this shortcoming, the preditive power of n-gram is largely limited.
 
-**Article: GloVe: Global Vectors for Word Representation**
+## Word Embedding Models
+Moved from statistical to neural network. Word embedding models works by representing words as numerical dense vectors so the neural networks can understand and process. Representing words as dense vectors has a long history, but the first neural network language model was proposed in 2013 by @bengio2003neural, and became the pioneer in word embedding models. In the work of @bengio2003neural, word embedding works by encoding the words into a feature vector. The feature vector represents different aspects of the word and each word is associated with a point in a vector space.
 
-GloVe is a pre-trained word embedding model that can capture semantic meanings of words. It is an unsupervised learning algorithm developed by Stanford. Their disadvantage is that they are context-free and fail to capture higher-level concepts in context.
+The words that are similar will have similar representations in a vector space. The similarity of the words, however, does not depend on their spelling or forms, but by their co-occurrence in given contexts. For example, a "cat" is more similar to a "dog" instead of a "car" because we are more likely to talk about cats and dogs in a same conversation. Therefore, the co-occurrence of "cat" and "dog" has higher probability than the co-occurrence of "cat" and a "car". In other words, the distributed representation is learned by the usage of words. This permits words that are used in similar contexts to result in having similar vector representations and their semantic meanings are captured naturally.
 
 **Article: word2vec Explained: Deriving Mikolov et al.’s Negative-Sampling Word-Embedding Method**
 
-Developed by Google, Word2Vec is another word embedding model that uses shallow neural network. It's not for deep learning.
+### Word2Vec
+
+Developed by Google, Word2Vec is a word embedding model that uses shallow neural network. While it is not a deep learning model, it turns words into a vector representations that deep neural networks can understand. It takes a corpus as its input and output a set of feature vectors that represent the words in the given corpus. @mikolov2013efficient proposed two architectures for learning distributed representations of words within the framework of Word2Vec — Continuous Bag-of-Words Model and Continuous Skip-gram Model.
+
+Example:
+>  vector("King") - vector("Man") + vector("Woman") = vector("Queen")
+
+
+**Article: GloVe: Global Vectors for Word Representation**
+
+GloVe stands for global vectors for word representation. It is a pre-trained word embedding model that can capture semantic meanings of words developed by Stanford. 
+It is an unsupervised learning algorithm. 
+Their disadvantage is that they are context-free and fail to capture higher-level concepts in context.
 
 ## Pre-trained transformer language models
 
@@ -95,11 +111,24 @@ In recent years, the use of pre-trained language models has played a significant
 
 Draw on and cite: 'Language Models are Few-Shot Learners'
 
-OpenAI is an AI research company who openly pursues Artificial General Intelligence—to have machines learn and understand any intellectual tasks as human do **(Ke-Li add ref)**. OpenAI's Generative Pre-Trained Transformer (GPT) models are pre-trained language models that are built based on the transformer architecture. Proposed by @vaswani2017attention from Google in 2017, the Transformer is a novel network architecture that outperforms RNN-based models in computational efficiency and CNN-based in (something that it doesn't have to look for longer sentences) **(Keli add citation)**. [Write about self-attention layer and how it differentiate from RNN and CNN]. 
+OpenAI is an AI research company who openly pursues Artificial General Intelligence—to have machines learn and understand any intellectual tasks as human do **(Ke-Li add ref)**. OpenAI's Generative Pre-Trained Transformer (GPT) models are pre-trained language models that are built based on the transformer architecture. Proposed by @vaswani2017attention from Google in 2017, the Transformer is a novel network architecture for neural network that outperforms RNN-based models in computational efficiency and CNN-based in (something that it doesn't have to look for longer sentences) **(Keli add citation)**. [Write about self-attention layer and how it differentiate from RNN and CNN]. [Paraphrase: The transformer is based solely on attention mechanisms, dispensing with recurrence and convolutions entirely, and has proven extremely effective compared to its predecessor the LSTM].
 
 As of August 2020, OpenAI has three generations of GPT models. GPT was introduced to the public in June, 2018. In the year 2019, its successor GPT-2 was released in three stages. Not long after, in June 2020, OpenAI announced GPT-3, which is the latest GPT model as of July 2020 (@brown2020language). Since the API of GPT-3 at the moment is only available to a few invited users, public applications of GPT-3 are limited. On the other hand, its predecessor, GPT-2, has enabled researchers made breakthroughs in the past years. @alt2019fine extended GPT-2 to relation extraction, which is a task of identifying the relationship between concepts appeared in text. They had shown a milestone in predicting larger range of distinct relation types with higher confidence **(Ke-Li add ref)**. In the field of speech recognition, data scarcity is often an issue due to the difficulty to collect large amount of data from human for learning **(Ke-Li add ref)**. @bird2020lstm employed GPT-2 as part of the solution to generate augmented data for classification. GPT-2 also helped NLP researchers tackling the task of textual paraphrasing **(Ke-Li add ref)**. @hegde2020unsupervised used GPT-2 to build an unsupervised paraphrasing model that is not restricted by domain shift within an article, which is a problem faced by the usual supervised models of paraphrasing. 
 
-GPT-2 has the capacity to adapt to a context and generates custom output with the "fine-tuning" technique **(Ke-Li add ref)**. While the pre-training is unsupervised, fine-tuning is conducted by supervised learning or reinforced learning (@ziegler2019fine). **(Ke-Li add more about fine-tuning)** We aim to use GPT-2 to clean textual data to **(Ke-Li add more about how we use fine-tuning to train GPT-2 for text cleaning)**
+Most of prior language models are trained in a single domain by supervised learning to perform a single task. OpenAI, on the other hands, train the GPT models to perform many tasks (@radford2019language). GPT-2 is pre-trained on WebText, a comprehensive data set that is scrapped from millions of webpages and contains total of 40 GB of text (@radford2019language). WebText contains all kinds of textual data: dialogues, comments, translations, questions and answers...etc. Such diversity is critical for GPT-2 to be a generalized model that can perform multiple tasks with any domain boundary. However, GPT-2 has the capacity to adapt to a context and generates custom output with the "fine-tuning" technique **(Ke-Li add ref)**. While the pre-training stage is unsupervised and mandatory, fine-tuning is an optional training stage where GPT can learn to perform new tasks in a supervised or reinforced approach (@ziegler2019fine) **(Ke-Li add examples)**. During the pre-training stage, the model is trained to perform text completion task. Give it a prompt to start and it will generate texts that continues what has been started. In the fine-tuning stage, @radford2019language provided additional training data sets for GPT-2 to generate the texts with specific sentiment, or be descriptive, or even summarize the prompt text.
+
+In our project, we aim to use fine-tune GPT-2 to perform a text cleaning task **(Ke-Li add more about how we use fine-tuning to train GPT-2 for text cleaning)**.
+
+
+
+A language model is just a probability:
+> p(output | input)
+
+To model all NLP tasks, we cab represent them with one extra conditioning:
+> p(output | input, task)
+
+
+OpenAI has made GPT-2 open-sourced through Github with Python and Tensorflow. There is also a package in R that wraps the Python code into a R package, created by **(Keli add citation)**. However, the R package only permits exploratory experiments with the pre-trained tasks; fine-tuning for new tasks is not available thorough R. 
 
 GPT-3 has over 175 billions of parameters (@brown2020language). The parameters refer to the weights of the connections that enable the neural network to learn **(Keli add citation)**. In the past few years, the growth of parameters of transformer language models expands rapidly. The first generation GPT has 110 million parameters. Released in 2018, GPT-2 has 1.6 billion parameters, and within two years, GPT-3 has grown the size to 175 billion, which is over 100 times than its predecessor. The more parameters there are the better the model can generalize to new tasks; therefore, the increasing amount of parameters accelerates the improvements in text synthesis and downstream NLP tasks **(Keli add citation)**. GPT-3 can learn NLP tasks with just a handful of example; OpenAI refers this ability as few-shot learning, or in-context learning. **(Keli add citation)**. As a result, we only need to provide GPT-3 a few demonstrations for it to learn a new NLP task. For example, OpenAI team trained GPT-3 to generate "news articles". The prompt input is a plausible first sentence of a news story written by human, and the output is an entire news article generated by the model itself. Without the demonstrations, GPT-3 tends to treat the prompts as "tweets" and generate texts that serve as responses or follow-up tweets. The team fed a few previous news articles in the model’s context as demonstrations, and the model learned to produce the outputs that adapt to the style and length of news stories (@brown2020language). This few-shot learning ability indicates that the model can learn like human do and would democratize the use of language models to broader fields.
 
