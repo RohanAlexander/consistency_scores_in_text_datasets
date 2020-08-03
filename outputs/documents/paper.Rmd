@@ -79,9 +79,10 @@ where $N$ is **(Ke-Li add)**.
 
 Language models underpinned by n-grams are widely applied in text prediction, spelling-correction, and machine translation (@brown1992class). In our application, we use a tri-gram based model to detect both real-word and non-word errors and correct them with the candidate word that has the highest probability. **(TODO: Add more about how we use n-gram once the functions in the app are in place.)**
 
-However, n-gram models do not take the linguistic structure of language into account. For instance, @rosenfeld2000two [p. X]  **(Ke-Li add page please)** discusses language in this context, saying that '...it may as well be a sequence of arbitrary symbols, with no deep structure, intention or thought behind'. The prediction of the next word is based on only a few preceding words and broader context is not taken into account. Hence next-word prediction using n-gram based language models can be limited.
+However, n-gram models do not take the linguistic structure of language into account. For instance, @rosenfeld2000two [p. 1]  **(Ke-Li add page please)** discusses language in this context, saying that '...it may as well be a sequence of arbitrary symbols, with no deep structure, intention or thought behind'. The prediction of the next word is based on only a few preceding words and broader context is not taken into account. Hence next-word prediction using n-gram based language models can be limited.
 
 **(Ke-Li add brief write-up of implementation in R please. Probably quanteda unless there's a better option.)**
+The data set we used for training the n-gram model is [**(Ke-Li add a data set once settled the choice)**]. For generating n-grams, we used the Text Analysis Utilities (tau) R package to tokenize the training corpus into tri-grams. 
 
 
 ## Word embedding models
@@ -119,11 +120,15 @@ The ratio between the co-occurrence probability of the 'ice, solid' pair and the
 
 
 **(Ke-Li add brief paragraph about negatives of this approach.)**
+#### Notes not content ####
+- Inability to handle unknown or out-of-vocabulary (OOV) words.
+- No shared representations at sub-word levels
+- Word presentations are not contextual. Representation of apple is the same in context of fruit and tech company
+- [Although these pre-trained embeddings can capture semantic meanings of words, they are context-free and fail to capture higher-level concepts in context, such as polysemous disambiguation, syntactic structures, semantic roles, anaphora.] (@hanretty2018comparing).
 
 
-**(Ke-Li add brief write-up of implementation in R please.)**
-
-
+**(Ke-Li add brief write-up of implementation in R please.)** 
+GloVe word embedding is available to operate in R with the text2vec package developed by Dmitriy Selivanov **(Ke-Li add package citation)**.
 
 
 ## Pre-trained transformer language models
@@ -169,9 +174,6 @@ Let's pretend that this text had been created from optical character recognition
 Assume a model that is trained to perfectly forecast the next word in Jane Eyre. For this fragment there are 62 words, comprising 5 errors and 57 correct words. So the internal consistency score of this fragment would be: 57/62 = 0.919. When we recognise and correct the errors, this consistency score would increase to 1. 
 
 Similarly, assume a model that is trained on an external data source. This means that it will recognise the the cases where some 'h' were replaced with 'b', but not recognise that 'Reed' has become 'Reeal'. Hence, the external consistency score would be 58/62 = 0.935.
-
-
-
 
 
 # Data
