@@ -4,6 +4,9 @@ library(tm)
 library(stringr)
 library(stats)
 
+library(reshape2)
+library(RWeka)
+
 #setwd("~/Desktop/repos/consistency_scores_in_text_datasets/shinyapp")
 path <- getwd()
 demoTraining <- readLines(paste(path,"/samples/demo.txt", sep=""), warn=FALSE)
@@ -14,7 +17,7 @@ tokenizer <- function(corpus) {
   # Read the corpus line by line
   for (line in corpus) {
     # add two start-of-sentence tokens to the beginning of a sentence
-    line <- paste("<s> <s>", line)
+    #line <- paste("<s> <s>", line)
     lines <-c(lines, line)
   }
   
@@ -42,6 +45,7 @@ getLastWords <- function(string, words) {
   pattern <- paste("[a-z']+( [a-z']+){", words - 1, "}$", sep="")
   return(substring(string, str_locate(string, pattern)[,1]))
 }
+
 removeLastWord <- function(string) {
   sub(" [a-z']+$", "", string)
 }
@@ -73,6 +77,7 @@ kneserNay <- function(ngrams, d) {
   return(probabilities)
 }
 
+# Get the probabilities after smoothing
 unigramProbs <- kneserNay(unigrams, 0.75)
 bigramProbs <- kneserNay(bigrams, 0.75)
 trigramProbs <- kneserNay(trigrams, 0.75)
@@ -81,11 +86,11 @@ library(data.table)
 
 unigramDF <- data.table("Words" = (names(unigrams)), 
                         "Probability" = as.vector(unigramProbs), stringsAsFactors=F)
-bigramsDF <- data.table("FirstWords" = removeLastWord(names(bigrams)), 
-                        "LastWord" = getLastWords(names(bigrams), 1), 
+bigramsDF <- data.table("First Words" = removeLastWord(names(bigrams)), 
+                        "Las tWord" = getLastWords(names(bigrams), 1), 
                         "Probability" = as.vector(bigramProbs), stringsAsFactors=F)
-trigramsDF <- data.table("FirstWords" = removeLastWord(names(trigrams)), 
-                         "LastWord" = getLastWords(names(trigrams), 1), 
+trigramsDF <- data.table("Firs tWords" = removeLastWord(names(trigrams)), 
+                         "Last Word" = getLastWords(names(trigrams), 1), 
                          "Probability" = as.vector(trigramProbs), stringsAsFactors=F)
 
 
