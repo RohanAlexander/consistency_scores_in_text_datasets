@@ -166,7 +166,7 @@ BERT is pre-trained by using two unsupervised tasks. The first task is Masked La
 
 BERT was pre-trained on BooksCorpus data set with 800 million words and English Wikipedia with 2,500 million words (@devlin2018bert). Because BERT employs the Transformer architecture with the self-attention mechanism, fine-tuning is also available with one additional output layer and a task-specific input (@devlin2018bert). Google AI researchers have fine-tuned BERT for 11 NLP tasks including question-answering and common-sense inference.
 
-BERT implementation in R is also possible through Keras. Zhao HG (**Replace by citation**) created a python module called "keras-bert" and the module can be called by R through "reticulate" package (@reticulateR), which enables the operation of Python modules in R. To start, the "keras-bert" module is installed in Python environment and is called in R through the 'reticulate' package. 
+BERT implementation in R is also possible through Keras. Zhao HG (**Replace by citation**) created a python module called "keras-bert" and the module can be called by R through "reticulate" package (@reticulateR), which enables the operation of Python modules in R. To start, the "keras-bert" module is installed in Python environment and is called in R through the 'reticulate' package. We can then load, configure and train the BERT model. To train the BERT model, we load a task-specific dataset for it to learn. [(**Keli Add more details**)]
 
 # Stylized example
 
