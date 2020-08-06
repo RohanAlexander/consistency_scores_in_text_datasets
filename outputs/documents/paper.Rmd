@@ -122,8 +122,7 @@ Word2vec is trained on the Google News dataset **(Ke-Li add cite to the dataset 
 
 To the extent that the relative positions of terms reflects their semantic relationship, word2vec will perform well for word analogies. However, terms that have context-specific meaning may not perform as well.
 
-**(Ke-Li add brief write-up of implementation in R please.)**
-There are a few packages for implementing a Word2Vec model in R. The packages are "rword2vec" by Mukul Chaware and "word2vec" by Jan Wijffels, BNOSAC, and Max Fomichev. Both packages uses the same algorithm that Word2Vec uses to produce word representations, but they do not have an affiliation with Google. Another way to implement a Word2Vec model in R is through Keras package. Keras is an API for deep learning written in Python (@chollet2015keras) and the Keras package provides an R interface to Keras **(Ke-Li add citation for the package)**. RStudio published a tutorial for implementing the skip-gram model of Word2Vec (@falbel2017word) through Keras. We intend to follow this tutorial as the approach to implement a Word2Vec model. Following the demonstration, functions are defined to mimic the skip-gram algorithm of Word2Vec. The embedding dimensions, the size of the context window and the number of samples are configurable. As a result, a embedding matrix is obtained and serves as the look-up table of the word vectors. 
+There are a few packages for implementing a Word2Vec model in R. The packages are "rword2vec" by Mukul Chaware and "word2vec" by Jan Wijffels, BNOSAC, and Max Fomichev. Both packages uses the same algorithm that Word2Vec uses to produce word representations, but they do not have an affiliation with Google. Another way to implement a Word2Vec model in R is through Keras package. Keras is an API for deep learning written in Python (@chollet2015keras) and the Keras package provides an R interface to Keras **(Ke-Li add citation for the package)**. RStudio published a tutorial for implementing the skip-gram model of Word2Vec (@falbel2017word) through Keras. We intend to follow this tutorial as the approach to implement a Word2Vec model. There are three basic steps within the Keras deep learning framework: first is to prepare the data, second is to define the model and third is to train and evaluate the model. Following the steps, we first downloaded a the Amazon Fine Foods Reviews dataset from Stanford **(Ke-Li add citation for data set)** and preprocess the text into tokens. Then we defined a model that mimics the skip-gram algorithm of Word2Vec. The embedding dimensions, the size of the context window and the number of samples are configurable. Finally, we used the fit_generator() function of Keras to train the model. **What's supposed to happen:** As a result, a embedding matrix is obtained and serves as the look-up table of the word vectors. **What really happened:** However, the training process was stuck in the operation of fit_generator() function.
 
 ### GloVe
 
@@ -138,9 +137,9 @@ The ratio between the co-occurrence probability of the 'ice, solid' pair and the
 
 **(Ke-Li add brief paragraph about negatives of this approach.)**
 **(This limitation paragraph applies to both Word2Vec and GloVe)**
-As @hanretty2018comparing point out, although word embedding models can capture semantic means of words, "they are context-free and fail to capture higher-level concepts in context, such as polysemous disambiguation, syntactic structures, semantic roles, anaphora". Word embedding models do not represent a homonyms that has difference meanings in different vectors depending on the context. For example, "squash" can be a type of hard shelled vegetable or can be referring to a racket and ball sport, but there is only one series of vectors to represent the word "squash", instead of dynamically changing the vectors depending on the context. Moreover, from our observation, the word embedding models are unable to handle novel words that are not included in the vocabulary of the training corpus; for this reason, we conclude that the generalizability of word embedding models is sub-optimal. 
+As @hanretty2018comparing point out, although word embedding models can capture semantic meanings of words, "they are context-free and fail to capture higher-level concepts in context, such as polysemous disambiguation, syntactic structures, semantic roles, anaphora". Word embedding models do not represent a homonyms that has difference meanings in different vectors depending on the context. For example, "squash" can be a type of hard shelled vegetable or can be referring to a racket and ball sport, but there is only one series of vectors to represent the word "squash", instead of dynamically changing the vectors depending on the context. Moreover, from our observation, the word embedding models are unable to handle novel words that are not included in the vocabulary of the training corpus; for this reason, we conclude that the generalizability of word embedding models is sub-optimal. 
 
-There are more than one way to implement GloVe word embedding model in R. One way is to load GloVe embeddings into a frozen Keras Embedding layer **(Keli add citation to the blog post by Keras)** using the Keras R package (**(Keli add citation to package)**). Another way, as mentioned and briefly demonstrated by Rstudio in their blog post, is to use the "text2vec" package developed by Dmitriy Selivanov **(Ke-Li add package citation)**. Keras published a blog post on pre-trained word embeddings through GloVe in R. In this project, we intend to follow the blog post for implementing GloVe through the Keras R package **(Keli add citation to the blog post by Keras)**. The blog post is aimed to create a word embedding model for text classification. However, we will only use the guide create a embedding matrix and skip the steps of text classification. Similar to the Word2Vec embedding matrix, the GloVe embedding matrix is obtained and serves as a look-up table.
+There are more than one way to implement GloVe word embedding model in R. One way is to load GloVe embeddings into a frozen Keras Embedding layer **(Keli add citation to the blog post by Keras)** using the Keras R package **(Keli add citation to package)**. Another way, as mentioned and briefly demonstrated by Rstudio in their blog post, is to use the "text2vec" package developed by Dmitriy Selivanov **(Ke-Li add package citation)**. Keras published a blog post on pre-trained word embeddings through GloVe in R. In this project, we intend to follow the blog post for implementing GloVe through the Keras R package **(Keli add citation to the blog post by Keras)**. The blog post is aimed to create a word embedding model for text classification. However, we will only use the guide create a embedding matrix and skip the steps of text classification. Since we are employing Keras again, the process remains similar. We first retrieved the training data set from Stanford and preprocessed the text in to tokens. We then defined the model by configuring the embedding layer. Finally the model is trained and evaluated, and the GloVe embedding matrix is obtained.
 
 ## Pre-trained transformer language models
 
@@ -231,5 +230,43 @@ Official paper from OpenAI to introduce OpenAI GPT-3. Emphasizes on the "fewer-s
 
 
 
+--
+There are a variety of ways to implement an n-gram model within R **[cite R]** including X, Y and Z. We used the Text Analysis Utilities, `tau`, R package **[cite tau]** because of X, Y, and Z. To illustrate the use of `tau`, we will first install and load the library, and create a small corpus.
+```{r, eval = FALSE}
+install.packages(“tau”)
+library(tau)
+corpus <- “There was no possibility of taking a walk that day. We had been wandering, indeed, in the leafless shrubbery an hour in the morning; but since dinner (Mrs. Reed, when there was no company, dined early) the cold winter wind had brought with it clouds so sombre, and a rain so penetrating, that further out-door exercise was now out of the question.”
+```
+Our purpose is to construct tri-grams and so we first split the corpus into sentences by period, exponential mark, or question marks. We then manually added an end of sentence token $<s>$ to the end of each sentence.
+```{r}
+#Add simple code for however this is done in tua?
+```
+Next we remove all punctuation and other non-letter characters, and convert all text to lower case.
+```{r}
+#however this is done in tua?
+```
+We will use the `textcnt()` function to turn the training corpus into tri-grams. The most important argument of this function is the corpus, as well as X, Y and Z.  The function outputs a `textcnt` object, which is essentially a table with each tri-gram and their counts.
+```{r}
+#code to do this in tau
+```
+At this point it is possible to take other measures around fine-tuning the tri-grams. For instance we may like to remove the tri-grams that contain an end-of-sentence token. This would mean that tri-grams that include a word from a new sentence will be removed. For example, the tri-gram ‘day </s> we’ will be removed because it has words from two different sentences. Table **X** shows the the first four tri-grams from the small sample corpus after this process.
+```{r table3, echo=FALSE, message=FALSE, warnings=FALSE, results='asis'}
+tabl <- "
+| there was no  | a rain so | a walk that | an hour in  |
+|---------------|-----------|-------------|-------------|
+| 2             | 1         | 1           | 1           |
+"
+cat(tabl) # output the table in a format good for HTML/PDF/docx conversion
+```
+The tri-grams can be accessed by calling the names of this table object and the counts can be used to calculate probabilities. There are a variety of options around constructing these probabilities. One is Kneser–Ney smoothing, which is the smoothing technique recommended by @chen1999empirical to improve the accuracy of n-gram models **(This function is written manually, but it’s not my own code. I am reading about the Kneser–Ney smoothing to understand the math, will replace the function afterwards)**.
+Finally, it is helpful to create a data table that contains the first two words and the last of each tri-gram in separate column and the smoothed probability in another column. For instance, Table **X** provides and example of this set-up.
+```{r table4, echo=FALSE, message=FALSE, warnings=FALSE, results='asis'}
+tabl <- "
+| First Words   | Last Word | Probability |
+|---------------|-----------|-------------|
+| there was     | no        | 0.6278947   |
+"
+cat(tabl) # output the table in a format good for HTML/PDF/docx conversion
+```
 
 
