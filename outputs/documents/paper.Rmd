@@ -18,7 +18,7 @@ author:
   affiliation: University of Toronto
 - name: Rohan Alexander
   affiliation: University of Toronto
-abstract: "In this paper we introduce a process to clean the text extracted from PDFs using various methods from natural language processing. Our approach compares originally extracted text with the text generated from, or expected by, these methods using earlier text as stimulus. To guide this process, we introduce the notion of a consistency score, which refers to the proportion of text that is unchanged by the model. This is used to monitor changes during the cleaning process, and to compare the messiness of different texts. The methods that we consider are: n-grams, word2vec, GloVe, and the GPT models. We illustrate our process on text from the Canadian Hansard and introduce both a Shiny application and an R package to make our process easier for others to adopt."
+abstract: "In this paper we introduce a process to clean the text extracted from PDFs using various methods from natural language processing. Our approach compares originally extracted text with the text generated from, or expected by, these methods using earlier text as stimulus. To guide this process, we introduce the notion of a consistency score, which refers to the proportion of text that is unchanged by the model. This is used to monitor changes during the cleaning process, and to compare the messiness of different texts. The methods that we consider are: n-grams, Word2Vec, GloVe, and the GPT models. We illustrate our process on text from the Canadian Hansard and introduce both a Shiny application and an R package to make our process easier for others to adopt."
 keywords: "text-as-data; natural language processing; quantitative analysis."
 date: "`r format(Sys.time(), '%B %d, %Y')`"
 geometry: margin=1in
@@ -41,7 +41,7 @@ In this paper we introduce the concept of consistency in a text corpus. Consiste
 
 To provide an example, consider the sentence, 'the cat in the\dots'. A child who has read this book could tell you that the next word should be 'hat'. Hence if the sentence was actually 'the cat in the bat', then that child would know something was likely wrong. The consistency score would likely be lower than if the sentence were 'the cat in the hat'. After we correct this error, the consistency score would likely increase. By examining how the consistency scores evolve in response to changes made to the text during the data preparation and cleaning stages we can better understand the effect of the changes. Including consistency scores and their evolution when text corpuses are shared allows researchers to be more transparent about their corpus. And finally, the use of consistency scores allows for an increased level of automation in the cleaning process. 
 
-We consider various natural language processing methods. These include n-grams, word2vec, GloVe, and the GPT models. The n-gram approach involves identifying two, three, or more, words that are commonly found together. Here think of a two-gram involving the word 'good' 'good morning'. At scale these can identify missing or unusual words, and work quickly, but they lack nuance. For instance, an equally reasonable two-gram involving the word 'good' is 'good work'. For that reason, we consider pre-trained word embedding models. These include word2vec and GloVe, which place each word in a multi-dimensional space such that distance between words can illustrate their relationship. We also consider pre-trained generative models such as GPT-2 and GPT-3. GPT-2 and GPT-3 are pre-trained generative unsupervised language models. They differ in the number of parameters. GPT-2 has 1.5 billion parameters and GPT-3 has more than 175 billion parameters. While GPT-2 is more limited, it can be run on smaller machines, whereas GPT-3 cannot and is accessed via an API. 
+We consider various natural language processing methods. These include n-grams, Word2Cec, GloVe, GPT models and BERT. The n-gram approach involves identifying two, three, or more, words that are commonly found together. Here think of a two-gram involving the word 'good' 'good morning'. At scale these can identify missing or unusual words, and work quickly, but they lack nuance. For instance, an equally reasonable two-gram involving the word 'good' is 'good work'. For that reason, we consider pre-trained word embedding models. These include Word2Vec and GloVe, which place each word in a multi-dimensional space such that distance between words can illustrate their relationship. We also consider pre-trained generative models such as GPT-2 and GPT-3 and BERT. GPT-2, GPT-3 and BERT are pre-trained generative unsupervised language models. GPT-2 and GPT-3 are the two generations of the same model that differ in the number of parameters. GPT-2 has 1.5 billion parameters and GPT-3 has more than 175 billion parameters. While GPT-2 is more limited, it can be run on smaller machines, whereas GPT-3 cannot and is accessed via an API. BERT has 340 millions parameters which is smaller than both GPT-2 and GPT-3. BERT also differs from GPT models because its encoding process is bidirectional instead of unidirectional. 
 
 We apply our approach to the Canadian Hansard. The Canadian Hansard was digitised by @beelen2017digitization. This was a process by which PDFs were scanned, put through optical character recognition (OCR), and then corrected to a reasonable extent. The dataset is extensive, fit-for-purpose, and, appropriately, it has been used considerably, for instance @rheault2020word. However, there are many issues with the dataset in terms of reading it. We focus on one particular year - **(Rohan pick one)** - and show that our approach can be used to relatively quickly improve the quality of the dataset in a reproducible and consistent manner.
 
@@ -58,13 +58,13 @@ Given the nature of human languages, some combinations of words tend to occur mo
 
 ## PDF text extraction and n-grams
 
-The Portable Document Format (PDF) is typically used to render documents in a relatively fixed way. PDFs contain a lot of information, but often that information is not able to be analysed directly by statistical language models. The information first needs to be extracted from the PDF, often by optical character recognition (OCR), and then cleaned, prepared, and made into some type of dataset. One issue in this process is that OCR is not perfect. Hence there is a need to correct the output before it is analysed. One way to do this is to correct errors one-by-one and independent of context. We all know that 'tbe' is wrong and should be 'the'. But statistical language models have the advantage of correction that can occur within context. This allows significant improvements, for instance sometimes 'bat' should be 'hat' and sometimes it really should be 'bat' **(Ke-Li add ref)**. 
+The Portable Document Format (PDF) is typically used to render documents in a relatively fixed way. PDFs contain a lot of information, but often that information is not able to be analysed directly by statistical language models. The information first needs to be extracted from the PDF, often by optical character recognition (OCR), and then cleaned, prepared, and made into some type of dataset. One issue in this process is that OCR is not perfect. Hence there is a need to correct the output before it is analysed. One way to do this is to correct errors one-by-one and independent of context. We all know that 'tbe' is wrong and should be 'the'. But statistical language models have the advantage of correction that can occur within context (@rosenfeld2000two). This allows significant improvements, for instance sometimes 'bat' should be 'hat' and sometimes it really should be 'bat'. 
 
-The foundation of an n-gram language model is the conditional probability set-up introduced above. An n-gram model is a probabilistic language model that predicts the next word in a sequence of words **(Ke-Li add ref)**. The $n$ in n-gram refers to the number of words in that sequence. Consider the following excerpt from *Jane Eyre*: 'We had been wandering'. 'We' is a uni-gram, 'We had' is a bi-gram, 'We had been' is a tri-gram, and 'We had been wandering' is a 4-gram. Notice that the two tri-grams in this excerpt, 'We had been', and 'had been wandering', overlap. The use of n-gram models enables us to assign probabilities to both the next sequence of words and just the next word. For instance, consider the two sentences: 'We had been wandering', and 'We had been wangling'. The former is likely to be more frequently encountered in a training corpus. Thus, an n-gram would assign a higher probability to the next word being 'wandering' than 'wangling', given the sequence 'We had been'.
+The foundation of an n-gram language model is the conditional probability set-up introduced above. An n-gram model is a probabilistic language model that predicts the next word in a sequence of words (@bengio2003neural). The $n$ in n-gram refers to the number of words in that sequence. Consider the following excerpt from *Jane Eyre*: 'We had been wandering'. 'We' is a uni-gram, 'We had' is a bi-gram, 'We had been' is a tri-gram, and 'We had been wandering' is a 4-gram. Notice that the two tri-grams in this excerpt, 'We had been', and 'had been wandering', overlap. The use of n-gram models enables us to assign probabilities to both the next sequence of words and just the next word. For instance, consider the two sentences: 'We had been wandering', and 'We had been wangling'. The former is likely to be more frequently encountered in a training corpus. Thus, an n-gram would assign a higher probability to the next word being 'wandering' than 'wangling', given the sequence 'We had been'.
 
 To predict the next word, we have to take the sequence of preceding words into account, which requires knowing the probability of the sequence of words. The probability of a sequence appearing in a corpus follows the chain rule:
 
-$$\mbox{Pr(We,had,been,wandering)} = \mbox{Pr(We)} \times \mbox{Pr(had|We)} \times \mbox{Pr(been|We,had)} \\ 
+$$\mbox{Pr(We,had,been,wandering)} = \mbox{Pr(We)} \times \mbox{Pr(had|We)} \times \mbox{Pr(been|We,had)} \\  
 \times \mbox{Pr(wandering|We,had,been)}.$$
 
 However, the likelihood that more and more words will occur next to each other in an identical sequence becomes smaller and smaller, making prediction difficult. Alternatively, we can approximate the probability of a word depending on only the previous word. This is known as the 'Markov assumption' and it allows us to approximate the probability using only the last $n$ words [@brown1992class]:
@@ -74,67 +74,90 @@ $$\mbox{Pr(We,had,been,wandering)} \approx \mbox{Pr(We)} \times \mbox{Pr(had|We)
 
 As a bi-gram model only considers the immediately preceding word, under the Markov assumption, an $n$-gram model can be reduced to a bi-gram model with $n$ being any number:
 
-$$\mbox{Pr}(w_{n} | w^{n-1}_{1}) \approx \mbox{P}(w_{n} | w^{n-1}_{n - N+1}))$$
-where $N$ is **(Ke-Li add)**.
+$$\mbox{Pr}(w_{n} | w^{n-1}_{1}) \approx \mbox{Pr}(w_{n} | w_{n -1})$$
 
 Language models underpinned by n-grams are widely applied in text prediction, spelling-correction, and machine translation (@brown1992class). In our application, we use a tri-gram based model to detect both real-word and non-word errors and correct them with the candidate word that has the highest probability.
 
 However, n-gram models do not take the linguistic structure of language into account. For instance, @rosenfeld2000two [p. 1] discusses language in this context, saying that '...it may as well be a sequence of arbitrary symbols, with no deep structure, intention or thought behind'. The prediction of the next word is based on only a few preceding words and broader context is not taken into account. Hence next-word prediction using n-gram based language models can be limited.
 
 
-There are a variety of ways to implement an n-gram model within R @citeR including **X, Y and Z**. We used the Text Analysis Utilities, `tau`, R package @citetau because of **X, Y, and Z**. To illustrate the use of `tau`, we will first install and load the library, and create a small corpus.
+There are a variety of ways to implement an n-gram model within R @citeR including using R packages such as `Quanteda` (@citequanteda), `tidyText` (@citetidytext) and `tm` (@citetm). We used the Text Analysis Utilities, `tau`, R package @citetau because of we can separate text-cleaning and n-gram making in two different steps. We want to have control to manually clean the text because we want to add an end-of-sentence token to each sentence int he corpus. To illustrate the use of `tau`, we will first install and load the library, and create a small corpus.
 
 ```{r, eval = FALSE}
 install.packages("tau")
 ```
 
 
-```{r}
+```{r, eval=FALSE}
 library(tau)
-corpus <- "There was no possibility of taking a walk that day. We had been wandering, indeed, in the leafless shrubbery an hour in the morning; but since dinner (Mrs. Reed, when there was no company, dined early) the cold winter wind had brought with it clouds so sombre, and a rain so penetrating, that further out-door exercise was now out of the question."
+corpus <- "There was no possibility of taking a walk that day. We had been 
+wandering, indeed, in the leafless shrubbery an hour in the morning; but 
+since dinner (Mrs. Reed, when there was no company, dined early) the cold 
+winter wind had brought with it clouds so sombre, and a rain so penetrating, 
+that further out-door exercise was now out of the question."
 ```
 
-Our purpose is to construct tri-grams and so we first split the corpus into sentences by period, exponential mark, or question marks. We then manually added an end of sentence token $<s>$ to the end of each sentence.
+Our purpose is to construct tri-grams and so we first split the corpus into sentences by period, exponential mark, or question marks. 
 
-```{r}
-# Add simple code for however this is done in tua?
+First, we remove all punctuation and other non-letter characters, and convert all text to lower case.
+
+```{r, eval=FALSE}
+tokenizer <- function(corpus) {
+  lines <- vector()
+  # Read the corpus line by line
+  for (line in corpus) {
+    # add two start-of-sentence tokens to the beginning of a sentence
+    lines <-c(lines, line)
+  }
+  lines <- tolower(lines)
+  # add end-of-sentence token to the end of a sentence
+  lines <- gsub("[.!?]$|[.!?] |$", " </s>", lines) 
+  tokens <- unlist(strsplit(lines, "[^a-z<>/]"))
+  tokens <- tokens[tokens != ""]
+  return(tokens)
+}
 ```
 
-Next we remove all punctuation and other non-letter characters, and convert all text to lower case.
+We will use the `textcnt()` function to turn the training corpus into tri-grams. The most important argument of this function is the _corpus_, as well as the _n_ to set the number of words in a sequence, _method_ to determine which type of counts to compute, and _split_ to designate the regular expression pattern for splitting. The function outputs a `textcnt` object, which is essentially a table with each tri-gram and their counts (@citetau).
 
-```{r}
-# Add however this is done in tua?
+```{r, eval=FALSE}
+trigrams <- textcnt( tokens, n=3, method = "string", 
+                     split = "[[:space:][:digit:]]+", decreasing = TRUE)
 ```
 
-We will use the `textcnt()` function to turn the training corpus into tri-grams. The most important argument of this function is the corpus, as well as **X, Y and Z**.  The function outputs a `textcnt` object, which is essentially a table with each tri-gram and their counts.
+We then manually added an end of sentence token </s> to the end of each sentence.
 
-```{r}
-# Add code to do this in tau
+```{r, eval=FALSE}
+trigrams <- trigrams[!grepl("</s>", names(trigrams))]
 ```
 
-At this point it is possible to take other measures around fine-tuning the tri-grams. For instance we may like to remove the tri-grams that contain an end-of-sentence token. This would mean that tri-grams that include a word from a new sentence will be removed. For example, the tri-gram 'day </s> we' will be removed because it has words from two different sentences. Table **X** shows the the first four tri-grams from the small sample corpus after this process.
+At this point it is possible to take other measures around fine-tuning the tri-grams. For instance we may like to remove the tri-grams that contain an end-of-sentence token. This would mean that tri-grams that include a word from a new sentence will be removed. For example, the tri-gram 'day </s> we' will be removed because it has words from two different sentences. Table 1. shows four sample tri-grams from the small sample corpus after this process.
 
 ```{r table1, echo=FALSE, message=FALSE, warnings=FALSE, results='asis'}
 tabl <- "
 | there was no  | a rain so | a walk that | an hour in  |
 |---------------|-----------|-------------|-------------|
 | 2             | 1         | 1           | 1           |
+
+Table 1. Four sample tri-grams generated from the corpus
 "
 cat(tabl) # output the table in a format good for HTML/PDF/docx conversion
 ```
-The tri-grams can be accessed by calling the names of this table object and the counts can be used to calculate probabilities. There are a variety of options around constructing these probabilities. One is Kneser–Ney smoothing, which is the smoothing technique recommended by @chen1999empirical to improve the accuracy of n-gram models **(This function is written manually, but it’s not my own code. I am reading about the Kneser–Ney smoothing to understand the math, will replace the function afterwards)**.
 
-Finally, it is helpful to create a data table that contains the first two words and the last of each tri-gram in separate column and the smoothed probability in another column. For instance, Table **X** provides and example of this set-up.
+The tri-grams can be accessed by calling the names of this table object and the counts can be used to calculate probabilities. There are a variety of options around constructing these probabilities. One is Kneser–Ney smoothing, which is the smoothing technique recommended by @chen1999empirical to improve the accuracy of n-gram models.
+
+Finally, it is helpful to create a data table that contains the first two words and the last of each tri-gram in separate column and the smoothed probability in another column. For instance, Table 2. provides and example of this set-up.
 
 ```{r table2, echo=FALSE, message=FALSE, warnings=FALSE, results='asis'}
 tabl <- "
 | First Words   | Last Word | Probability |
 |---------------|-----------|-------------|
 | there was     | no        | 0.6278947   |
+
+Table2. The smoothed probability table
 "
 cat(tabl) # output the table in a format good for HTML/PDF/docx conversion
 ```
-
 
 
 ## Word embedding models
@@ -143,7 +166,7 @@ Although, from an implementation perspective, there is an inherent numerical rep
 
 This approach has a long history, but the implementation of @bengio2003neural has become the foundation for much subsequent work. Here, terms are encoded into feature vectors that represent different aspects of the term, and so each term is represented by a position in the vector space. Terms that are used in similar ways will have similar representations in the vector space. This will be due to their co-occurrence in usage. For example, 'cat' will be closer to 'dog' than to 'car', because we are more likely to talk about cats and dogs, than cats and cars. See how they might be close when considered along a 'pets' dimension, but far when considered along a 'related-to-tigers' dimension.
 
-Terms that are often used in similar contexts will have similar vector representations. Hence, word embedding models can identify similar terms, calculate the similarity between a pair of terms, and find the odd term in a group of terms [@mikolov2013efficient]. There are a variety of ways to achieve this dimensionality reduction, including word2vec and GloVe.
+Terms that are often used in similar contexts will have similar vector representations. Hence, word embedding models can identify similar terms, calculate the similarity between a pair of terms, and find the odd term in a group of terms [@mikolov2013efficient]. There are a variety of ways to achieve this dimensionality reduction, including Word2Vec and GloVe.
 
 
 ### Word2vec
@@ -152,15 +175,15 @@ Word2vec is a word embedding model that uses a neural network to learn word asso
 
 To illustrate the difference, consider the quote from Descartes, 'I think therefore I am'. The focus word for which we want to learn the embedding is 'therefore', and the context window is set to two. This means that we consider the two words immediately preceding and proceeding 'therefore'. The CBOW input is 'I, think, I, am', and the output is 'therefore'. In contrast, the continuous skip-gram input is 'therefore', while 'I, think, I, am' is the output. The input layer encodes terms within a context window to one-hot vectors. Using a projection matrix, the projection layer then project the discrete one-hot vectors to lower-dimension continuous vectors. Finally, the output layer is a softmax regression classifier that obtains the posterior distribution of words (@rong2014word2vec). It is the input and output vectors that differ between the two architectures. 
 
-Word2vec is trained on the Google News dataset **(Ke-Li add cite to the dataset please.)**. This contains six billion tokens and the vocabulary size is restricted to the one million most common words (@mikolov2013efficient). As this is a large dataset, it provides an accurate statistical pattern of language, as it is used in this dataset, and a comprehensive mapping between terms and vector positions. 
+Word2Vec is trained on the Google News dataset (@citegooglenews). This contains six billion tokens and the vocabulary size is restricted to the one million most common words (@mikolov2013efficient). As this is a large dataset, it provides an accurate statistical pattern of language, as it is used in this dataset, and a comprehensive mapping between terms and vector positions. 
 
-To the extent that the relative positions of terms reflects their semantic relationship, word2vec will perform well for word analogies. However, terms that have context-specific meaning may not perform as well.
+To the extent that the relative positions of terms reflects their semantic relationship, Word2Vec will perform well for word analogies. However, terms that have context-specific meaning may not perform as well.
 
-There are a few packages for implementing a Word2Vec model in R. The packages are "rword2vec" by Mukul Chaware and "word2vec" by Jan Wijffels, BNOSAC, and Max Fomichev. Both packages uses the same algorithm that Word2Vec uses to produce word representations, but they do not have an affiliation with Google. Another way to implement a Word2Vec model in R is through Keras package. Keras is an API for deep learning written in Python (@chollet2015keras) and the Keras package provides an R interface to Keras **(Ke-Li add citation for the package)**. RStudio published a tutorial for implementing the skip-gram model of Word2Vec (@falbel2017word) through Keras. We intend to follow this tutorial as the approach to implement a Word2Vec model. There are three basic steps within the Keras deep learning framework: first is to prepare the data, second is to define the model and third is to train and evaluate the model. Following the steps, we first downloaded a the [Amazon Fine Foods Reviews dataset from Stanford] **(Ke-Li add citation for data set)** and preprocess the text into tokens. Then we defined a model that mimics the skip-gram algorithm of Word2Vec in a function called skipgrams_generator(). The embedding dimensions, the size of the context window and the number of samples are configurable within this function. Finally, we used the fit_generator() function of Keras to train the model. **What's supposed to happen:** As a result, a embedding matrix is obtained and serves as the look-up table of the word vectors. **What really happened:** However, the training process was stuck in the operation of fit_generator() function. According to Stack Flow this might be an issue of incompatible versions between Keras and Tensorflow. More investigation is needed. 
+There are a few packages for implementing a Word2Vec model in R. The packages are `rword2vec` by @rword2vec and `word2vec` by @word2vecR. Both packages use the same algorithm that Word2Vec uses to produce word representations, but they do not have an affiliation with Google. Another way to implement a Word2Vec model in R is through Keras package. Keras is an API for deep learning written in Python (@chollet2015keras) and the Keras package provides an R interface to Keras (@kerasR2020). RStudio published a tutorial for implementing the skip-gram model of Word2Vec (@falbel2017word) through Keras. We intend to follow this tutorial as the approach to implement a Word2Vec model. There are three basic steps within the Keras deep learning framework: first is to prepare the data, second is to define the model and third is to train and evaluate the model. Following the steps, we first downloaded a the [Amazon Fine Foods Reviews dataset from Stanford] (@amzfinefooddata) and preprocess the text into tokens. Then we defined a model that mimics the skip-gram algorithm of Word2Vec in a function called `skipgrams_generator()`. The embedding dimensions, the size of the context window and the number of samples are configurable within this function. Finally, we used the `fit_generator()` function of Keras to train the model. **What's supposed to happen:** As a result, a embedding matrix is obtained and serves as the look-up table of the word vectors. **What really happened:** However, the training process was stuck in the operation of `fit_generator()` function. According to Stack Flow this might be an issue of incompatible versions between Keras and Tensorflow. More investigation is needed. 
 
 ### GloVe
 
-The global vectors (GloVe) model is a pre-trained word embedding model that emphasises the semantic meaning of words [@pennington2014glove]. In the word2vec model, word representations are learnt locally within the context window. On the other hand, GloVe considers the properties of the corpus globally. As the model considers the context of an entire corpus the co-occurrence probabilities are based on counts for the entire training dataset. 
+The Global Vectors (GloVe) model is a pre-trained word embedding model that emphasises the semantic meaning of words [@pennington2014glove]. In the Word2Vec model, word representations are learnt locally within the context window. On the other hand, GloVe considers the properties of the corpus globally. As the model considers the context of an entire corpus the co-occurrence probabilities are based on counts for the entire training dataset. 
 
 GloVe additionally considers the relative probability of word co-occurrence. For instance, consider the two words 'ice' and 'steam'. GloVe considers their co-occurrence with a variety of probe words, $k$. For instance $k$ could be 'solid', which is a property of ice; 'gas', which is a property of steam; and 'water', which is related to both.The ratio of co-occurrence probability is:
 
@@ -168,12 +191,9 @@ $$\frac{\mbox{Pr}(k|\mbox{ice})}{\mbox{Pr}(k|\mbox{steam})}.$$
 
 The ratio between the co-occurrence probability of the 'ice, solid' pair and the 'steam, solid' pair is high because the co-occurrence of 'ice' and 'solid' is higher than the co-occurrence of 'steam' and 'solid'. Conversely, the ratio between the co-occurrence of the 'ice, gas' pair and the 'steam, gas' pair is low. On the other hand, the ratio of the co-occurrence probability of the 'ice, water' pair and the 'steam, water' pair us close to one because water is relevant to both 'ice' and 'steam'. 
 
-
-**(Ke-Li add brief paragraph about negatives of this approach.)**
-**(This limitation paragraph applies to both Word2Vec and GloVe)**
 As @hanretty2018comparing point out, although word embedding models can capture semantic meanings of words, "they are context-free and fail to capture higher-level concepts in context, such as polysemous disambiguation, syntactic structures, semantic roles, anaphora". Word embedding models do not represent a homonyms that has difference meanings in different vectors depending on the context. For example, "squash" can be a type of hard shelled vegetable or can be referring to a racket and ball sport, but there is only one series of vectors to represent the word "squash", instead of dynamically changing the vectors depending on the context. Moreover, from our observation, the word embedding models are unable to handle novel words that are not included in the vocabulary of the training corpus; for this reason, we conclude that the generalizability of word embedding models is sub-optimal. 
 
-There are more than one way to implement GloVe word embedding model in R. One way is to load GloVe embeddings into a frozen Keras Embedding layer **(Keli add citation to the blog post by Keras)** using the Keras R package **(Keli add citation to package)**. Another way, as mentioned and briefly demonstrated by Rstudio in their blog post, is to use the "text2vec" package developed by Dmitriy Selivanov **(Ke-Li add package citation)**. Keras published a blog post on pre-trained word embeddings through GloVe in R. In this project, we intend to follow the blog post for implementing GloVe through the Keras R package **(Keli add citation to the blog post by Keras)**. The blog post is aimed to create a word embedding model for text classification. However, we will only use the guide create a embedding index and skip the steps of text classification. Instead of building a model for word embedding from scratch as we did for the skip-gram model of Word2Vec, here we are merely loading the Glove model and its pretrained word vectors as an index. The word embedding index is then saved to an R environment.
+There are more than one way to implement GloVe word embedding model in R. One way is to load GloVe embeddings into a frozen Keras Embedding layer (@kerasglove) using the `Keras` R package (@kerasR2020). Another way, as mentioned and briefly demonstrated by Rstudio in their blog post, is to use the `text2vec` package developed by @text2vec. Keras published a blog post on pre-trained word embeddings through GloVe in R. In this project, we intend to follow the blog post for implementing GloVe through the Keras R package (@kerasglove). The blog post is aimed to create a word embedding model for text classification. However, we will only use the guide create a embedding index and skip the steps of text classification. Instead of building a model for word embedding from scratch as we did for the skip-gram model of Word2Vec, here we are merely loading the Glove model and its pre-trained word vectors as an index. The word embedding index is then saved to an R environment.
 
 ## Pre-trained transformer language models
 
@@ -181,13 +201,13 @@ In recent years, the use of pre-trained language models has played a significant
 
 ### GPT
 
-OpenAI is an AI research company who openly pursues Artificial General Intelligence — to have machines learn and understand any intellectual tasks as human do **(Cite OpenAI blog)**. OpenAI's Generative Pre-Trained Transformer (GPT) models are pre-trained language models that are built based on the transformer architecture. Proposed by @vaswani2017attention from Google in 2017, the Transformer is a novel network architecture for neural network that outperforms RNN-based and CNN-based models in computational efficiency (@vaswani2017attention). Since the emergence of the Transformer model, most of the representative pre-trained models are built based on this architecture (@hanretty2018comparing). Therefore, we can say that Transformer marks a new era of language models.
+OpenAI is an AI research company who openly pursues Artificial General Intelligence — to have machines learn and understand any intellectual tasks as human do (@brundage2018malicious). OpenAI's Generative Pre-Trained Transformer (GPT) models are pre-trained language models that are built based on the transformer architecture. Proposed by @vaswani2017attention from Google in 2017, the Transformer is a novel network architecture for neural network that outperforms RNN-based and CNN-based models in computational efficiency (@vaswani2017attention). Since the emergence of the Transformer model, most of the representative pre-trained models are built based on this architecture (@hanretty2018comparing). Therefore, we can say that Transformer marks a new era of language models.
 
-As of August 2020, OpenAI has three generations of GPT models. GPT was introduced to the public in June, 2018. In the year 2019, its successor GPT-2 was released in three stages. Not long after, in June 2020, OpenAI announced GPT-3, which is the latest GPT model as of July 2020 (@brown2020language). Since the API of GPT-3 at the moment is only available to a few invited users, public applications of GPT-3 are limited. On the other hand, its predecessor, GPT-2, has enabled researchers made breakthroughs in the past years. @alt2019fine extended GPT-2 to relation extraction, which is a task of identifying the relationship between concepts appeared in text. They had shown a milestone in predicting larger range of distinct relation types with higher confidence (@alt2019fine). In the field of speech recognition, data scarcity is often an issue due to the difficulty to collect large amount of data from human for learning (@bird2020lst). @bird2020lstm employed GPT-2 as part of the solution to generate augmented data for classification. GPT-2 also helped NLP researchers tackling the task of textual paraphrasing. @hegde2020unsupervised used GPT-2 to build an unsupervised paraphrasing model that is not restricted by domain shift within an article, which is a problem faced by the usual supervised models of paraphrasing. 
+As of August 2020, OpenAI has three generations of GPT models. GPT was introduced to the public in June, 2018. In the year 2019, its successor GPT-2 was released in three stages. Not long after, in June 2020, OpenAI announced GPT-3, which is the latest GPT model as of July 2020 (@brown2020language). Since the API of GPT-3 at the moment is only available to a few invited users, public applications of GPT-3 are limited. On the other hand, its predecessor, GPT-2, has enabled researchers made breakthroughs in the past years. @alt2019fine extended GPT-2 to relation extraction, which is a task of identifying the relationship between concepts appeared in text. They had shown a milestone in predicting larger range of distinct relation types with higher confidence (@alt2019fine). In the field of speech recognition, data scarcity is often an issue due to the difficulty to collect large amount of data from human for learning (@bird2020lstm). @bird2020lstm employed GPT-2 as part of the solution to generate augmented data for classification. GPT-2 also helped NLP researchers tackling the task of textual paraphrasing. @hegde2020unsupervised used GPT-2 to build an unsupervised paraphrasing model that is not restricted by domain shift within an article, which is a problem faced by the usual supervised models of paraphrasing. 
 
-Most of prior language models are trained in a single domain by supervised learning to perform a single task. OpenAI, on the other hands, train the GPT models to perform many tasks (@radford2019language). GPT-2 is pre-trained on WebText, a comprehensive data set that is scrapped from millions of webpages and contains total of 40 GB of text (@radford2019language). WebText contains all kinds of textual data: dialogues, comments, translations, questions and answers...etc. Such diversity is critical for GPT-2 to be a generalized model that can perform multiple tasks with any domain boundary. However, GPT-2 has the capacity to adapt to a context and generates custom output with the "fine-tuning" technique (@ziegler2019fine). While the pre-training stage is unsupervised and mandatory, fine-tuning is an optional training stage where GPT can learn to perform new tasks in a supervised or reinforced approach such as stylistic continuation and summarization (@ziegler2019fine). During the pre-training stage, the model is trained to perform text completion task. Give it a prompt to start and it will generate texts that continues what has been started. In the fine-tuning stage, @radford2019language provided additional training data sets for GPT-2 to generate the texts with specific sentiment, or be descriptive, or even summarize the prompt text.
+Most of prior language models are trained in a single domain by supervised learning to perform a single task. OpenAI, on the other hands, train the GPT models to perform many tasks (@radford2019language). GPT-2 is pre-trained on WebText, a comprehensive dataset that is scrapped from millions of webpages and contains total of 40 GB of text (@radford2019language). WebText contains all kinds of textual data: dialogues, comments, translations, questions and answers...etc. Such diversity is critical for GPT-2 to be a generalized model that can perform multiple tasks with any domain boundary. However, GPT-2 has the capacity to adapt to a context and generates custom output with the "fine-tuning" technique (@ziegler2019fine). While the pre-training stage is unsupervised and mandatory, fine-tuning is an optional training stage where GPT can learn to perform new tasks in a supervised or reinforced approach such as stylistic continuation and summarization (@ziegler2019fine). During the pre-training stage, the model is trained to perform text completion task. Give it a prompt to start and it will generate texts that continues what has been started. In the fine-tuning stage, @radford2019language provided additional training datasets for GPT-2 to generate the texts with specific sentiment, or be descriptive, or even summarize the prompt text.
 
-OpenAI has made GPT-2 open-sourced through Github with Python and Tensorflow. There is also a package in R that wraps the Python code into a R package, created by @keydanaluraschi2019gpt2. There are three choices of models in terms of parameter sizes — "124M", "355M" and "774M". The R package only permits exploratory experiments with the pre-trained tasks; fine-tuning for new tasks is not available thorough R. To proceed with the implementation of GPT-2 in R, we will fine-tune the model through Python and create a wrapper code for R (**Keli to check if this is possible**). 
+OpenAI has made GPT-2 open-sourced through Github with Python and Tensorflow (@tensorflow2015-whitepaper). There is also a package in R that wraps the Python code into a R package, created by @keydanaluraschi2019gpt2. There are three choices of models in terms of parameter sizes — "124M", "355M" and "774M". The R package only permits exploratory experiments with the pre-trained tasks; fine-tuning for new tasks is not available thorough R. To proceed with the implementation of GPT-2 in R, theoretically, we will fine-tune the model through Python and create a wrapper code for R. This could possibility be achieved by employing the `reticulate` R package (@reticulateR) that allows operation of Python code in R. The practicality of this approach is to be further investigated.
 
 GPT-3 has over 175 billions of parameters (@brown2020language). In the past few years, the growth of parameters of transformer language models expands rapidly. The first generation GPT has 110 million parameters. Released in 2018, GPT-2 has 1.6 billion parameters, and within two years, GPT-3 has grown the size to 175 billion, which is over 100 times than its predecessor. The more parameters there are the better the model can generalize to new tasks; therefore, the increasing amount of parameters accelerates the improvements in text synthesis and downstream NLP tasks (@brown2020language). GPT-3 can learn NLP tasks with just a handful of example; OpenAI refers this ability as few-shot learning, or in-context learning (@brown2020language). As a result, we only need to provide GPT-3 a few demonstrations for it to learn a new NLP task. For example, OpenAI team trained GPT-3 to generate "news articles". The prompt input is a plausible first sentence of a news story written by human, and the output is an entire news article generated by the model itself. Without the demonstrations, GPT-3 tends to treat the prompts as "tweets" and generate texts that serve as responses or follow-up tweets. The team fed a few previous news articles in the model’s context as demonstrations, and the model learned to produce the outputs that adapt to the style and length of news stories (@brown2020language). This few-shot learning ability indicates that the model can learn like human do and would democratize the use of language models to broader fields.
 
@@ -197,9 +217,9 @@ BERT stands for Bidirectional Encoder Representations from Transformers (@devlin
 
 BERT is pre-trained by using two unsupervised tasks. The first task is Masked Language Model and and second task is Next Sentence Prediction. The bidirectional approach of BERT is alleviated by the "Masked Language Model" (@devlin2018bert). The Masked Language Model masks certain words in the input corpus which forces the model to predict the original words by "filling in the blank". This training process blends the representation from the left and right context and therefore increases the model's context sensitivity (@nozza2020mask). In the Next Sentence Prediction process, the model receives two sentences in sequence as input. 50% of the sentences are paired in the right sequence and the ones from the other half have sentences that are paired randomly (@devlin2018bert). The goal of this process is to have BERT evaluate if the second sentence is the next sentence of the first sentence in the original text and sharpen its capacity to predict the likelihood of the next sentence. 
 
-BERT was pre-trained on BooksCorpus data set with 800 million words and English Wikipedia with 2,500 million words (@devlin2018bert). Because BERT employs the Transformer architecture with the self-attention mechanism, fine-tuning is also available with one additional output layer and a task-specific input (@devlin2018bert). Google AI researchers have fine-tuned BERT for 11 NLP tasks including question-answering and common-sense inference.
+BERT was pre-trained on BooksCorpus dataset with 800 million words and English Wikipedia with 2,500 million words (@devlin2018bert). Because BERT employs the Transformer architecture with the self-attention mechanism, fine-tuning is also available with one additional output layer and a task-specific input (@devlin2018bert). Google AI researchers have fine-tuned BERT for 11 NLP tasks including question-answering and common-sense inference.
 
-BERT implementation in R is also possible through Keras. Zhao HG (**Replace by citation**) created a python module called "keras-bert" and the module can be called by R through "reticulate" package (@reticulateR), which enables the operation of Python modules in R. To start, we install the keras-bert model in Python on the machine and load BERT model into R through "reticulate". Once keras-bert is loaded, we can use it to fine-tune BERT on a task-specific training dataset. Fine-tuning is started by tokenizing the training data. The output of the tokenization is then fed to BERT as the input. The next step is to define the model by configuring its parameters such as batch size, number of epochs and the learning rate. Finally, the model is compiled and we can begin the fine-tuning.
+BERT implementation in R is also possible through Keras. @kerasbert created a python module called `keras-bert` and the module can be called by R through `reticulate` package (@reticulateR), which enables the operation of Python modules in R. To start, we install the keras-bert model in Python on the machine and load BERT model into R through `reticulate`. Once `keras-bert` is loaded, we can use it to fine-tune BERT on a task-specific training dataset. Fine-tuning is started by tokenizing the training data. The output of the tokenization is then fed to BERT as the input. The next step is to define the model by configuring its parameters such as batch size, number of epochs and the learning rate. Finally, the model is compiled and we can begin the fine-tuning.
 
 # Stylized example
 
@@ -261,46 +281,3 @@ Official paper from OpenAI to introduce OpenAI GPT-3. Emphasizes on the "fewer-s
 
 
 # References
-
-
-
---
-There are a variety of ways to implement an n-gram model within R **[cite R]** including X, Y and Z. We used the Text Analysis Utilities, `tau`, R package **[cite tau]** because of X, Y, and Z. To illustrate the use of `tau`, we will first install and load the library, and create a small corpus.
-```{r, eval = FALSE}
-install.packages(“tau”)
-library(tau)
-corpus <- “There was no possibility of taking a walk that day. We had been wandering, indeed, in the leafless shrubbery an hour in the morning; but since dinner (Mrs. Reed, when there was no company, dined early) the cold winter wind had brought with it clouds so sombre, and a rain so penetrating, that further out-door exercise was now out of the question.”
-```
-Our purpose is to construct tri-grams and so we first split the corpus into sentences by period, exponential mark, or question marks. We then manually added an end of sentence token $<s>$ to the end of each sentence.
-```{r}
-#Add simple code for however this is done in tua?
-```
-Next we remove all punctuation and other non-letter characters, and convert all text to lower case.
-```{r}
-#however this is done in tua?
-```
-We will use the `textcnt()` function to turn the training corpus into tri-grams. The most important argument of this function is the corpus, as well as X, Y and Z.  The function outputs a `textcnt` object, which is essentially a table with each tri-gram and their counts.
-```{r}
-#code to do this in tau
-```
-At this point it is possible to take other measures around fine-tuning the tri-grams. For instance we may like to remove the tri-grams that contain an end-of-sentence token. This would mean that tri-grams that include a word from a new sentence will be removed. For example, the tri-gram ‘day </s> we’ will be removed because it has words from two different sentences. Table **X** shows the the first four tri-grams from the small sample corpus after this process.
-```{r table3, echo=FALSE, message=FALSE, warnings=FALSE, results='asis'}
-tabl <- "
-| there was no  | a rain so | a walk that | an hour in  |
-|---------------|-----------|-------------|-------------|
-| 2             | 1         | 1           | 1           |
-"
-cat(tabl) # output the table in a format good for HTML/PDF/docx conversion
-```
-The tri-grams can be accessed by calling the names of this table object and the counts can be used to calculate probabilities. There are a variety of options around constructing these probabilities. One is Kneser–Ney smoothing, which is the smoothing technique recommended by @chen1999empirical to improve the accuracy of n-gram models **(This function is written manually, but it’s not my own code. I am reading about the Kneser–Ney smoothing to understand the math, will replace the function afterwards)**.
-Finally, it is helpful to create a data table that contains the first two words and the last of each tri-gram in separate column and the smoothed probability in another column. For instance, Table **X** provides and example of this set-up.
-```{r table4, echo=FALSE, message=FALSE, warnings=FALSE, results='asis'}
-tabl <- "
-| First Words   | Last Word | Probability |
-|---------------|-----------|-------------|
-| there was     | no        | 0.6278947   |
-"
-cat(tabl) # output the table in a format good for HTML/PDF/docx conversion
-```
-
-

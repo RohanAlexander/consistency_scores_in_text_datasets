@@ -3,7 +3,6 @@ library(tau)
 library(tm)
 library(stringr)
 library(stats)
-
 library(reshape2)
 library(RWeka)
 
@@ -13,14 +12,12 @@ demoTraining <- readLines(paste(path,"/samples/demo.txt", sep=""), warn=FALSE)
 
 tokenizer <- function(corpus) {
   lines <- vector()
-  
   # Read the corpus line by line
   for (line in corpus) {
     # add two start-of-sentence tokens to the beginning of a sentence
     #line <- paste("<s> <s>", line)
     lines <-c(lines, line)
   }
-  
   lines <- tolower(lines)
   lines <- gsub("[.!?]$|[.!?] |$", " </s>", lines) # add end-of-sentence token to the end of a sentence
   tokens <- unlist(strsplit(lines, "[^a-z<>/]"))
@@ -92,7 +89,6 @@ bigramsDF <- data.table("First Words" = removeLastWord(names(bigrams)),
 trigramsDF <- data.table("Firs tWords" = removeLastWord(names(trigrams)), 
                          "Last Word" = getLastWords(names(trigrams), 1), 
                          "Probability" = as.vector(trigramProbs), stringsAsFactors=F)
-
 
 library(dplyr)
 unigramDF <- (unigramDF %>% arrange(desc(Probability)))
