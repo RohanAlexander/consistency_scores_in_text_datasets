@@ -1,7 +1,8 @@
- ## Source tutorial: https://blogs.rstudio.com/ai/posts/2019-09-30-bert-r/
+# Source tutorial: https://blogs.rstudio.com/ai/posts/2019-09-30-bert-r/
 
 Sys.setenv(TF_KERAS=1)
 
+# Go to the tutorial link in the above comment to download the files
 pretrained_path = '/change/this/path/uncased_L-12_H-768_A-12'
 
 config_path = file.path(pretrained_path, 'bert_config.json')
