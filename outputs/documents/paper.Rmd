@@ -118,14 +118,14 @@ tokenizer <- function(corpus) {
 }
 ```
 
-We will use the `textcnt()` function to turn the training corpus into tri-grams. The most important argument of this function is the _corpus_, as well as the _n_ to set the number of words in a sequence, _method_ to determine which type of counts to compute, and _split_ to designate the regular expression pattern for splitting. The function outputs a `textcnt` object, which is essentially a table with each tri-gram and their counts (@citetau).
+We will use the `textcnt()` function to turn the training corpus into tri-grams. The most important argument of this function is _corpus_, as well as _n_ to set the number of words in a sequence, _method_ to determine which type of counts to compute, and _split_ to designate the regular expression pattern for splitting. The function outputs a `textcnt` object, which is essentially a table with each tri-gram and their counts (@citetau).
 
 ```{r, eval=FALSE}
 trigrams <- textcnt( tokens, n=3, method = "string", 
                      split = "[[:space:][:digit:]]+", decreasing = TRUE)
 ```
 
-We then manually added an end of sentence token </s> to the end of each sentence.
+We then manually added an end of sentence token, `</s>`, to the end of each sentence.
 
 ```{r, eval=FALSE}
 trigrams <- trigrams[!grepl("</s>", names(trigrams))]
@@ -179,7 +179,24 @@ Word2Vec is trained on the Google News dataset [@citegooglenews]. This contains 
 
 To the extent that the relative positions of terms reflects their semantic relationship, Word2Vec will perform well for word analogies. However, terms that have context-specific meaning may not perform as well.
 
-There are a few packages for implementing a Word2Vec model in R. The packages are `rword2vec` by @rword2vec and `word2vec` by @word2vecR. Both packages use the same algorithm that Word2Vec uses to produce word representations, but they do not have an affiliation with Google. Another way to implement a Word2Vec model in R is through Keras package. Keras is an API for deep learning written in Python [@chollet2015keras] and the Keras package provides an R interface to Keras [@kerasR2020]. RStudio published a tutorial for implementing the skip-gram model of Word2Vec [@falbel2017word] through Keras. We intend to follow this tutorial as the approach to implement a Word2Vec model. There are three basic steps within the Keras deep learning framework: first is to prepare the data, second is to define the model and third is to train and evaluate the model. Following the steps, we first downloaded a the [Amazon Fine Foods Reviews dataset from Stanford] [@amzfinefooddata] and preprocess the text into tokens. Then we defined a model that mimics the skip-gram algorithm of Word2Vec in a function called `skipgrams_generator()`. The embedding dimensions, the size of the context window and the number of samples are configurable within this function. Finally, we used the `fit_generator()` function of Keras to train the model. **What's supposed to happen:** As a result, a embedding matrix is obtained and serves as the look-up table of the word vectors. **What really happened:** However, the training process was stuck in the operation of `fit_generator()` function. According to Stack Flow this might be an issue of incompatible versions between Keras and Tensorflow. More investigation is needed. 
+There are a few packages for implementing a word2vec model in R, including `rword2vec` [@citerwordvecchaware] and `word2vec` [@citewordvecwijffels]. Both packages use the same algorithm. Another way to implement a word2vec model in R is through Keras which is an API for deep learning written in Python [@chollet2015keras] for which the `keras` package provides an R interface [@citekeras]. 
+
+Here, we follow @falbel2017word to implement a skip-gram model of word2vec through Keras. There are three steps in the Keras deep learning framework: 1) prepare the data; 2) define the model; and 3) train and evaluate the model. **(Ke-Li: Can we change this to be a different dataset please?)** Following these steps, we first downloaded the **(Ke-Li: Is there a reason this is in brackets?)** [Amazon Fine Foods Reviews dataset from Stanford] [@amzfinefooddata] and preprocess the text into tokens. 
+
+**(Ke-Li: Add code.)**
+
+We then define a model that mimics the skip-gram algorithm of word2vec using the function `skipgrams_generator()`. 
+
+**(Ke-Li: Add code.)**
+
+The embedding dimensions, the size of the context window and the number of samples are configurable within this function. 
+
+Finally, we use the `fit_generator()` function to train the model. 
+
+**(Ke-Li: Add code.)**
+
+**What's supposed to happen:** As a result, a embedding matrix is obtained and serves as the look-up table of the word vectors. **What really happened:** However, the training process was stuck in the operation of `fit_generator()` function. According to Stack Flow this might be an issue of incompatible versions between Keras and Tensorflow. More investigation is needed. 
+
 
 ### GloVe
 
@@ -193,7 +210,13 @@ The ratio between the co-occurrence probability of the 'ice, solid' pair and the
 
 As @hanretty2018comparing point out, although word embedding models can capture semantic meanings of words, "they are context-free and fail to capture higher-level concepts in context, such as polysemous disambiguation, syntactic structures, semantic roles, anaphora". Word embedding models do not represent a homonyms that has difference meanings in different vectors depending on the context. For example, "squash" can be a type of hard shelled vegetable or can be referring to a racket and ball sport, but there is only one series of vectors to represent the word "squash", instead of dynamically changing the vectors depending on the context. Moreover, from our observation, the word embedding models are unable to handle novel words that are not included in the vocabulary of the training corpus; for this reason, we conclude that the generalizability of word embedding models is sub-optimal. 
 
-There are more than one way to implement GloVe word embedding model in R. One way is to load GloVe embeddings into a frozen Keras Embedding layer [@kerasglove] using the `Keras` R package [@kerasR2020]. Another way, as mentioned and briefly demonstrated by Rstudio in their blog post, is to use the `text2vec` package developed by @text2vec. Keras published a blog post on pre-trained word embeddings through GloVe in R. In this project, we intend to follow the blog post for implementing GloVe through the Keras R package [@kerasglove]. The blog post is aimed to create a word embedding model for text classification. However, we will only use the guide create a embedding index and skip the steps of text classification. Instead of building a model for word embedding from scratch as we did for the skip-gram model of Word2Vec, here we are merely loading the Glove model and its pre-trained word vectors as an index. The word embedding index is then saved to an R environment.
+There are a variety of ways to implement GloVe word embedding models in R. One is to load GloVe embeddings into a frozen Keras Embedding layer [@kerasglove] using the `Keras` R package [@kerasR2020]. This means **(Ke-Li: Add what it means please.)** Another way, is to use the `text2vec` package [@text2vec]. 
+
+Here we follow **CITE** to implement GloVe using the `keras` R package [@kerasglove]. The blog post is aimed to create a word embedding model for text classification. However, we will only use the guide create a embedding index and skip the steps of text classification. Instead of building a model for word embedding from scratch as we did for the skip-gram model of Word2Vec, here we are merely loading the Glove model and its pre-trained word vectors as an index. The word embedding index is then saved to an R environment.
+
+
+**[As before, we need code and examples here]**
+
 
 ## Pre-trained transformer language models
 
