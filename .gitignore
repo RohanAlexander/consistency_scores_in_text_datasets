@@ -39,3 +39,6 @@ vignettes/*.pdf
 
 # R Environment Variables
 .Renviron
+
+# BERT model
+model starters/uncased_L-12_H-768_A-12/

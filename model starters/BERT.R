@@ -1,9 +1,29 @@
 # Source tutorial: https://blogs.rstudio.com/ai/posts/2019-09-30-bert-r/
+setwd("~/Desktop/repos/consistency_scores_in_text_datasets/model starters")
+library(tesseract)
+eng <- tesseract("eng")
+text_original <- tesseract::ocr("sample6.png", engine = eng)
+cat(text_original)
+
+library(textclean)
+testtxt <- c("His Majesty’s Government wish to add that they have no im@@@l@fon of requesting the establishment of military bases in peace time within the area of Palestine now united to the Kis@@®m of Jordan.")
+testtxt <- strip(testtxt, char.keep = c("?", ".", "’", "~~"), digit.remove = TRUE, apostrophe.remove = FALSE,
+      lower.case = FALSE)
+
+library(hunspell)
+incorrectwords <- hunspell(testtxt)
+print(incorrectwords)
+
+for (w in incorrectwords) {
+  testtxt <- str_replace_all(testtxt, w, "[MASK]")
+}
+
+
+
 
 Sys.setenv(TF_KERAS=1)
-
 # Go to the tutorial link in the above comment to download the files
-pretrained_path = '/change/this/path/uncased_L-12_H-768_A-12'
+pretrained_path = 'uncased_L-12_H-768_A-12'
 
 config_path = file.path(pretrained_path, 'bert_config.json')
 checkpoint_path = file.path(pretrained_path, 'bert_model.ckpt')
