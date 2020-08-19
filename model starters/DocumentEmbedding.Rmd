@@ -4,7 +4,7 @@ author: "Keli Chiu"
 date: "15/08/2020"
 output: html_document
 ---
-
+  
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(textdata)
@@ -27,9 +27,9 @@ Another way that's also frequently proposed is to aggregate all the word vectors
 - **Topic modeling with LDA**, the documents are represented by topic distributions
 - **Sentence-BERT (SBERT)**
 - **TF-IDF**
-
+  
 ## Example of document embedding 
-
+  
 Doc2Vec is available in Python but doesn't seem to be available in R. The following example is the aggregation of pretrained GloVe word vectors, following the tutorial of Julia Silge: https://smltar.com/embeddings.html# In the tutorial, Julia sums GloVe word embeddings in a document as the representation vectors of that document. The training documents are replaced with paper abstracts downloaded from Kaggle: https://www.kaggle.com/nikhilmittal/research-paper-abstracts
 
 ```{r,warning=FALSE}
@@ -101,4 +101,5 @@ doc_matrix <- as.data.frame(doc_matrix)
 doc_matrix <- cbind(doc_ids,doc_matrix ) # Put the document IDs back
 doc_matrix
 ```
+
 Up to this step, a document matrix with the corresponding vectors that represents the documentation is obtained. We can then perform matrix algera, or use the vectors to feed in machine learning algorithms for similarity detection or classfication. Further investigation is needed to perform the tasks!
