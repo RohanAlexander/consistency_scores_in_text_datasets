@@ -1,38 +1,19 @@
 # Source tutorial: https://keras.rstudio.com/articles/examples/pretrained_word_embeddings.html
+# This example shows how one can quickly load glove vectors
+# and train a Keras model in R
+
 library(keras)
+library(dplyr)
 
-GLOVE_DIR <- 'glove.6B'
-TEXT_DATA_DIR <- '20_newsgroup'
-MAX_SEQUENCE_LENGTH <- 1000
-MAX_NUM_WORDS <- 20000
-EMBEDDING_DIM <- 100
-VALIDATION_SPLIT <- 0.2
-
-# download data if necessary
-download_data <- function(data_dir, url_path, data_file) {
-  if (!dir.exists(data_dir)) {
-    download.file(paste0(url_path, data_file), data_file, mode = "wb")
-    if (tools::file_ext(data_file) == "zip")
-      unzip(data_file, exdir = tools::file_path_sans_ext(data_file))
-    else
-      untar(data_file)
-    unlink(data_file)
-  }
-}
-download_data(GLOVE_DIR, 'http://nlp.stanford.edu/data/', 'glove.6B.zip')
-
-# first, build index mapping words in the embeddings set
-# to their embedding vector
-
-cat('Indexing word vectors.\n')
-
-embeddings_index <- new.env(parent = emptyenv())
-lines <- readLines(file.path(GLOVE_DIR, 'glove.6B.100d.txt'))
-for (line in lines) {
-  values <- strsplit(line, ' ', fixed = TRUE)[[1]]
-  word <- values[[1]]
-  coefs <- as.numeric(values[-1])
-  embeddings_index[[word]] <- coefs
+# Download Glove vectors if necessary
+if (!file.exists('glove.6B.zip')) {
+  download.file('http://nlp.stanford.edu/data/glove.6B.zip',destfile = 'glove.6B.zip')
+  unzip('glove.6B.zip')
 }
 
-cat(sprintf('Found %s word vectors.\n', length(embeddings_index)))
+# load glove vectors into R
+vectors = data.table::fread('glove.6B.300d.txt', data.table = F,  encoding = 'UTF-8')
+colnames(vectors) = c('word',paste('dim',1:300,sep = '_'))
+
+# structure of the vectors
+as_tibble(vectors)

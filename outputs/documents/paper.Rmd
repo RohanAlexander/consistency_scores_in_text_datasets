@@ -181,7 +181,7 @@ To the extent that the relative positions of terms reflects their semantic relat
 
 There are a few packages for implementing a word2vec model in R, including `rword2vec` [@citerwordvecchaware] and `word2vec` [@citewordvecwijffels]. Both packages use the same algorithm. Another way to implement a word2vec model in R is through Keras which is an API for deep learning written in Python [@chollet2015keras] for which the `keras` package provides an R interface [@citekeras]. 
 
-Here, we follow @falbel2017word to implement a skip-gram model of Word2Vec through Keras. There are three steps in the Keras deep learning framework: 1) prepare the data; 2) define the model; and 3) train and evaluate the model. **(Ke-Li: Can we change this to be a different dataset please?)** Following these steps, we first downloaded the Google News dataset [@citegooglenews] and preprocess the text into tokens. 
+Here, we follow @falbel2017word to implement a skip-gram model of Word2Vec through Keras. There are three steps in the Keras deep learning framework: 1) prepare the data; 2) define the model; and 3) train and evaluate the model. **(Ke-Li: Can we change this to be a different dataset please? Yes, I changed it to Google News for now, let's change it to an official data set that we will decide on later!)** Following these steps, we first downloaded the Google News dataset [@citegooglenews] and preprocess the text into tokens. 
 
 ```{r, eval=FALSE}
 tokenizer %>% fit_text_tokenizer(training_corpus)
@@ -236,11 +236,28 @@ As @hanretty2018comparing point out, although word embedding models can capture 
 
 There are a variety of ways to implement GloVe word embedding models in R. One is to load GloVe embeddings into a frozen Keras Embedding layer [@kerasglove] using the `Keras` R package [@kerasR2020]. This means the embedding vectors will not be updated during the training process. Another way, is to use the `text2vec` package [@text2vec]. 
 
-Here we follow **CITE** to implement GloVe using the `keras` R package [@kerasglove]. The blog post is aimed to create a word embedding model for text classification. However, we will only use the guide create a embedding index and skip the steps of text classification. Instead of building a model for word embedding from scratch as we did for the skip-gram model of Word2Vec, here we are merely loading the Glove model and its pre-trained word vectors as an index. The word embedding index is then saved to an R environment.
+Here we follow the blog post published by Keras [@kerasglove] to implement GloVe using the `keras` R package [@kerasglove]. The blog post is aimed to create a word embedding model for text classification. However, we will only use the guide create a embedding index and skip the steps of text classification. Instead of building a model for word embedding from scratch as we did for the skip-gram model of Word2Vec, here we are merely loading the Glove model and its pre-trained word vectors as an index. The word embedding index is then saved to an R environment.
 
+To use GloVe in R, we first download the pre-trained GloVe vectors. The file comes in zip format, which needs to be unzipped:
 
-**[As before, we need code and examples here]**
+```{r, eval=FALSE}
+download.file('http://nlp.stanford.edu/data/glove.6B.zip',destfile = 'glove.6B.zip')
+unzip('glove.6B.zip')
+```
 
+The next step is to load the GloVe vectors into R:
+
+```{r, eval=FALSE}
+vectors = data.table::fread('glove.6B.300d.txt', data.table = F,  encoding = 'UTF-8')
+colnames(vectors) = c('word',paste('dim',1:300,sep = '_'))
+```
+
+The GloVe vectors are now available in R. We restructure the word vectors into a tibble data frame for easy access. The tibble dataset has 400,000 words and 301 dimensions to represent each word:
+
+```{r, eval=FALSE}
+as_tibble(vectors)
+# A tibble: 400,000 x 301
+```
 
 ## Pre-trained transformer language models
 
