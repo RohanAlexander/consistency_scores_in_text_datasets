@@ -34,7 +34,7 @@ Doc2Vec is available in Python but doesn't seem to be available in R. The follow
 
 ```{r,warning=FALSE}
 # Tokenize the abstract
-abstracts <- read_csv("abstracts_101.csv")
+abstracts <- read_csv("input-abstracts.csv")
 tidy_abstracts <- abstracts %>%
   select(id, abstract) %>%
   unnest_tokens(word, abstract) %>%

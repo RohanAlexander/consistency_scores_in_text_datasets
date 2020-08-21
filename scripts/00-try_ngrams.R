@@ -96,3 +96,12 @@ all_tokens_with_errors %>%
 all_tokens_with_errors %>% 
   mutate(as_expected = last_word == last_word_expected) %>% 
   filter(as_expected == FALSE)
+
+### To-Dos
+# Text pre-processing: to lowercase and remove stopwords
+# Code clean up and tighten up
+# Function 1: Create ngrams for internal source of text
+# Function 2: Create ngrams for input text
+# Output 1: Internal consistency score
+# Output 2: Summary tables of expected words
+# Package website

@@ -62,7 +62,7 @@ summary(model)
 #model <- keras::train_on_batch(model)
 
 model %>%
-  fit(
+  fit_generator(
     skipgrams_generator(training_corpus, tokenizer, skip_window, negative_samples), 
     steps_per_epoch = 10, epochs = 1
   )

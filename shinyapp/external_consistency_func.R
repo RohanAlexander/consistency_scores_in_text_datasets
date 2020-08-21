@@ -8,8 +8,15 @@ library(RWeka)
 
 #setwd("~/Desktop/repos/consistency_scores_in_text_datasets/shinyapp")
 path <- getwd()
-demoTraining <- readLines(paste(path,"/samples/demo.txt", sep=""), warn=FALSE)
+demoTraining <- readLines(paste(path,"/samples/sample_en_US.blogs.txt", sep=""), warn=FALSE)
 
+######## OCR Read text from image ########
+library(tesseract)
+eng <- tesseract("eng")
+text_original <- tesseract::ocr("BERT Python/image1.png", engine = eng)
+cat(text_original)
+
+######## Training Text Tokenization ######## 
 tokenizer <- function(corpus) {
   lines <- vector()
   # Read the corpus line by line
@@ -37,7 +44,22 @@ unigrams <- unigrams[!grepl("</s>", names(unigrams))]
 bigrams <-   bigrams[!grepl("</s>", names(bigrams))]
 trigrams <- trigrams[!grepl("</s>", names(trigrams))]
 
-### ngram probability
+######## Collect incorrect words ######## 
+text_original <- "There was na possibility of taking a wlak that day"
+library(textclean)
+text_stripped <- strip(text_original, char.keep = c("?", ".", "’", "~~"), digit.remove = TRUE, apostrophe.remove = FALSE,
+                       lower.case = FALSE)
+library(hunspell)
+incorrectwords <- hunspell(text_stripped)
+text_tokens <- tokenizer(text_stripped)
+indices <- match(as.vector(incorrectwords[[1]]),text_tokens)
+bigrams <- vector()
+for(i in indices) {
+  bigram <- paste(text_tokens[i-2], text_tokens[i-1])
+  bigrams <- append(bigrams, bigram)
+}
+
+########  ngram probability ######## 
 getLastWords <- function(string, words) {
   pattern <- paste("[a-z']+( [a-z']+){", words - 1, "}$", sep="")
   return(substring(string, str_locate(string, pattern)[,1]))
@@ -47,7 +69,7 @@ removeLastWord <- function(string) {
   sub(" [a-z']+$", "", string)
 }
 
-# Kneser-Ney Smoothing
+######## Kneser-Ney Smoothing ########
 kneserNay <- function(ngrams, d) {
   n <- length(strsplit(names(ngrams[1]), " ")[[1]])
   # Special case for unigrams
@@ -83,11 +105,11 @@ library(data.table)
 
 unigramDF <- data.table("Words" = (names(unigrams)), 
                         "Probability" = as.vector(unigramProbs), stringsAsFactors=F)
-bigramsDF <- data.table("First Words" = removeLastWord(names(bigrams)), 
-                        "Las tWord" = getLastWords(names(bigrams), 1), 
+bigramsDF <- data.table("FirstWords" = removeLastWord(names(bigrams)), 
+                        "LastWord" = getLastWords(names(bigrams), 1), 
                         "Probability" = as.vector(bigramProbs), stringsAsFactors=F)
-trigramsDF <- data.table("Firs tWords" = removeLastWord(names(trigrams)), 
-                         "Last Word" = getLastWords(names(trigrams), 1), 
+trigramsDF <- data.table("FirstWords" = removeLastWord(names(trigrams)), 
+                         "LastWord" = getLastWords(names(trigrams), 1), 
                          "Probability" = as.vector(trigramProbs), stringsAsFactors=F)
 
 library(dplyr)
@@ -95,26 +117,11 @@ unigramDF <- (unigramDF %>% arrange(desc(Probability)))
 bigramsDF <- bigramsDF %>% arrange(desc(Probability)) %>% filter(Probability > 0.0001)
 trigramsDF <- trigramsDF %>% arrange(desc(Probability)) %>% filter(Probability > 0.0001)
 
-detector <- function(input) {
-  inputCopy <- unlist(strsplit(input, "\n")) # split the input by sentences
-  tokens <- tokenizer(inputCopy)
-  # Turn input text to trigrams
-  inputTrigrams <- textcnt( tokens, n=3, method = "string", split = "[[:space:][:digit:]]+", decreasing = TRUE)
-  inputTrigrams <- inputTrigrams[!grepl("</s>", names(inputTrigrams))]
-  print(inputTrigrams)
-  correctSentence <- vector()
-  
-  for (trigram in names(inputTrigrams)) {
-    firstWords <- removeLastWord(trigram)
-    lastWord <- getLastWords(trigram, 1)
-    if(!(lastWord %in% dplyr::filter(trigramsDF, firstWords == FirstWords)$LastWord)){
-      correctWord <- dplyr::filter(trigramsDF, firstWords== FirstWords)$LastWord
-      print(correctSequence)
-    }# else {
-      #return(input)
-    #}
-  }
-  return(correctSequence)
+######## Function to predict words ########
+predict_words <- function(input) {
+  prediction <- c()
+  prediction <- c(prediction, filter(trigramsDF, getLastWords(input, 2) == FirstWords)$LastWord)
+  return(prediction[1:5])
 }
-detector("wo had arwg")
 
+##### Try the prediction function #####

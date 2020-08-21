@@ -76,12 +76,12 @@ As a bi-gram model only considers the immediately preceding word, under the Mark
 
 $$\mbox{Pr}(w_{n} | w^{n-1}_{1}) \approx \mbox{Pr}(w_{n} | w_{n -1})$$
 
-Language models underpinned by n-grams are widely applied in text prediction, spelling-correction, and machine translation (@brown1992class). In our application, we use a tri-gram based model to detect both real-word and non-word errors and correct them with the candidate word that has the highest probability.
+Language models underpinned by n-grams are widely applied in text prediction, spelling-correction, and machine translation [@brown1992class]. In our application, we use a tri-gram based model to detect both real-word and non-word errors and correct them with the candidate word that has the highest probability.
 
 However, n-gram models do not take the linguistic structure of language into account. For instance, @rosenfeld2000two [p. 1] discusses language in this context, saying that '...it may as well be a sequence of arbitrary symbols, with no deep structure, intention or thought behind'. The prediction of the next word is based on only a few preceding words and broader context is not taken into account. Hence next-word prediction using n-gram based language models can be limited.
 
 
-There are a variety of ways to implement an n-gram model within R @citeR including using R packages such as `Quanteda` (@citequanteda), `tidyText` (@citetidytext) and `tm` (@citetm). We used the Text Analysis Utilities, `tau`, R package @citetau because of we can separate text-cleaning and n-gram making in two different steps. We want to have control to manually clean the text because we want to add an end-of-sentence token to each sentence int he corpus. To illustrate the use of `tau`, we will first install and load the library, and create a small corpus.
+There are a variety of ways to implement an n-gram model within R @citeR including using R packages such as `Quanteda` [@citequanteda], `tidyText` [@citetidytext] and `tm` [@citetm]. We used the Text Analysis Utilities, `tau`, R package @citetau because of we can separate text-cleaning and n-gram making in two different steps. We want to have control to manually clean the text because we want to add an end-of-sentence token to each sentence int he corpus. To illustrate the use of `tau`, we will first install and load the library, and create a small corpus.
 
 ```{r, eval = FALSE}
 install.packages("tau")
@@ -118,7 +118,7 @@ tokenizer <- function(corpus) {
 }
 ```
 
-We will use the `textcnt()` function to turn the training corpus into tri-grams. The most important argument of this function is _corpus_, as well as _n_ to set the number of words in a sequence, _method_ to determine which type of counts to compute, and _split_ to designate the regular expression pattern for splitting. The function outputs a `textcnt` object, which is essentially a table with each tri-gram and their counts (@citetau).
+We will use the `textcnt()` function to turn the training corpus into tri-grams. The most important argument of this function is _corpus_, as well as _n_ to set the number of words in a sequence, _method_ to determine which type of counts to compute, and _split_ to designate the regular expression pattern for splitting. The function outputs a `textcnt` object, which is essentially a table with each tri-gram and their counts [@citetau].
 
 ```{r, eval=FALSE}
 trigrams <- textcnt( tokens, n=3, method = "string", 
@@ -181,19 +181,43 @@ To the extent that the relative positions of terms reflects their semantic relat
 
 There are a few packages for implementing a word2vec model in R, including `rword2vec` [@citerwordvecchaware] and `word2vec` [@citewordvecwijffels]. Both packages use the same algorithm. Another way to implement a word2vec model in R is through Keras which is an API for deep learning written in Python [@chollet2015keras] for which the `keras` package provides an R interface [@citekeras]. 
 
-Here, we follow @falbel2017word to implement a skip-gram model of word2vec through Keras. There are three steps in the Keras deep learning framework: 1) prepare the data; 2) define the model; and 3) train and evaluate the model. **(Ke-Li: Can we change this to be a different dataset please?)** Following these steps, we first downloaded the **(Ke-Li: Is there a reason this is in brackets?)** [Amazon Fine Foods Reviews dataset from Stanford] [@amzfinefooddata] and preprocess the text into tokens. 
+Here, we follow @falbel2017word to implement a skip-gram model of Word2Vec through Keras. There are three steps in the Keras deep learning framework: 1) prepare the data; 2) define the model; and 3) train and evaluate the model. **(Ke-Li: Can we change this to be a different dataset please?)** Following these steps, we first downloaded the Google News dataset [@citegooglenews] and preprocess the text into tokens. 
 
-**(Ke-Li: Add code.)**
+```{r, eval=FALSE}
+tokenizer %>% fit_text_tokenizer(training_corpus)
+```
 
 We then define a model that mimics the skip-gram algorithm of word2vec using the function `skipgrams_generator()`. 
 
-**(Ke-Li: Add code.)**
+```{r, eval=FALSE}
+skipgrams_generator <- function(text, tokenizer, window_size, negative_samples) {
+  gen <- texts_to_sequences_generator(tokenizer, sample(text))
+  function() {
+    skip <- generator_next(gen) %>%
+      skipgrams(
+        vocabulary_size = tokenizer$num_words, 
+        window_size = window_size, 
+        negative_samples = 1
+      )
+    x <- transpose(skip$couples) %>% map(. %>% unlist %>% as.matrix(ncol = 1))
+    y <- skip$labels %>% as.matrix(ncol = 1)
+    list(x, y)
+  }
+}
+```
 
 The embedding dimensions, the size of the context window and the number of samples are configurable within this function. 
 
 Finally, we use the `fit_generator()` function to train the model. 
 
-**(Ke-Li: Add code.)**
+```{r, eval=FALSE}
+model %>%
+  fit_generator(
+    skipgrams_generator(training_corpus, tokenizer, skip_window, negative_samples), 
+    steps_per_epoch = 10, epochs = 1
+  )
+```
+
 
 **What's supposed to happen:** As a result, a embedding matrix is obtained and serves as the look-up table of the word vectors. **What really happened:** However, the training process was stuck in the operation of `fit_generator()` function. According to Stack Flow this might be an issue of incompatible versions between Keras and Tensorflow. More investigation is needed. 
 
@@ -210,7 +234,7 @@ The ratio between the co-occurrence probability of the 'ice, solid' pair and the
 
 As @hanretty2018comparing point out, although word embedding models can capture semantic meanings of words, "they are context-free and fail to capture higher-level concepts in context, such as polysemous disambiguation, syntactic structures, semantic roles, anaphora". Word embedding models do not represent a homonyms that has difference meanings in different vectors depending on the context. For example, "squash" can be a type of hard shelled vegetable or can be referring to a racket and ball sport, but there is only one series of vectors to represent the word "squash", instead of dynamically changing the vectors depending on the context. Moreover, from our observation, the word embedding models are unable to handle novel words that are not included in the vocabulary of the training corpus; for this reason, we conclude that the generalizability of word embedding models is sub-optimal. 
 
-There are a variety of ways to implement GloVe word embedding models in R. One is to load GloVe embeddings into a frozen Keras Embedding layer [@kerasglove] using the `Keras` R package [@kerasR2020]. This means **(Ke-Li: Add what it means please.)** Another way, is to use the `text2vec` package [@text2vec]. 
+There are a variety of ways to implement GloVe word embedding models in R. One is to load GloVe embeddings into a frozen Keras Embedding layer [@kerasglove] using the `Keras` R package [@kerasR2020]. This means the embedding vectors will not be updated during the training process. Another way, is to use the `text2vec` package [@text2vec]. 
 
 Here we follow **CITE** to implement GloVe using the `keras` R package [@kerasglove]. The blog post is aimed to create a word embedding model for text classification. However, we will only use the guide create a embedding index and skip the steps of text classification. Instead of building a model for word embedding from scratch as we did for the skip-gram model of Word2Vec, here we are merely loading the Glove model and its pre-trained word vectors as an index. The word embedding index is then saved to an R environment.
 
@@ -238,11 +262,95 @@ GPT-3 has over 175 billions of parameters [@brown2020language]. In the past few 
 
 BERT stands for Bidirectional Encoder Representations from Transformers [@devlin2018bert]. It was released by researchers at Google AI Language in 2018. The key innovation of BERT is its application of bidirectional training of the Transformer model, which results in a deeper sense of language context and flow. What is bidirectional training? In the context of English language, a sentence is constructed from left to right. The context on the left is used to determine the next word on the right. In this sense, GPT models are unidirectional since the probability of the next word is dependent only on the past. It is also possible to reverse the direction and model the sentence from right to left, and BERT incorporates both directions of left-to-right and right-to-left to model bidirectional contexts. 
 
-BERT is pre-trained by using two unsupervised tasks. The first task is Masked Language Model and and second task is Next Sentence Prediction. The bidirectional approach of BERT is alleviated by the "Masked Language Model" [@devlin2018bert]. The Masked Language Model masks certain words in the input corpus which forces the model to predict the original words by "filling in the blank". This training process blends the representation from the left and right context and therefore increases the model's context sensitivity [@nozza2020mask]. In the Next Sentence Prediction process, the model receives two sentences in sequence as input. 50% of the sentences are paired in the right sequence and the ones from the other half have sentences that are paired randomly [@devlin2018bert]. The goal of this process is to have BERT evaluate if the second sentence is the next sentence of the first sentence in the original text and sharpen its capacity to predict the likelihood of the next sentence. 
+BERT is pre-trained by using two unsupervised tasks. The first task is Masked Language Model and and second task is Next Sentence Prediction. The bidirectional approach of BERT is alleviated by the "Masked Language Model" [@devlin2018bert]. The Masked Language Model masks random words in the input corpus which forces the model to predict the original words by "filling in the blank". This training process blends the representation from the left and right context and therefore increases the model's context sensitivity [@nozza2020mask]. In the Next Sentence Prediction process, the model receives two sentences in sequence as input. 50% of the sentences are paired in the right sequence and the ones from the other half have sentences that are paired randomly [@devlin2018bert]. The goal of this process is to have BERT evaluate if the second sentence is the next sentence of the first sentence in the original text and sharpen its capacity to predict the likelihood of the next sentence. 
 
 BERT was pre-trained on BooksCorpus dataset with 800 million words and English Wikipedia with 2,500 million words [@devlin2018bert]. Because BERT employs the Transformer architecture with the self-attention mechanism, fine-tuning is also available with one additional output layer and a task-specific input [@devlin2018bert]. Google AI researchers have fine-tuned BERT for 11 NLP tasks including question-answering and common-sense inference.
 
 BERT implementation in R is also possible through Keras. @kerasbert created a python module called `keras-bert` and the module can be called by R through `reticulate` package [@reticulateR], which enables the operation of Python modules in R. To start, we install the keras-bert model in Python on the machine and load BERT model into R through `reticulate`. Once `keras-bert` is loaded, we can use it to fine-tune BERT on a task-specific training dataset. Fine-tuning is started by tokenizing the training data. The output of the tokenization is then fed to BERT as the input. The next step is to define the model by configuring its parameters such as batch size, number of epochs and the learning rate. Finally, the model is compiled and we can begin the fine-tuning.
+
+For the task of text cleaning, fine-tuning is not required. The process of text cleaning involves detecting and correcting mis-spelled words. Correcting the incorrect words can be seen as predicting the correct words. The Masked Language Model of BERT can be employed to do such prediction. In the pre-training process, the Masked Language Model would mask random words to do the prediction. However, we can tell the model what we want to "mask" by assigning the words to be encoded as `[MASK]`. Consider the erroneous sentence that has ten words:
+
+> "There was no possibility of taking a wlak that day." 
+
+Using a spell-checker, "wlak" is identified as an error and is substituted by `[MASK]`:
+
+> "There was no possibility of taking a [MASK] that day." 
+
+The implementation of text correction with BERT in R with the `keras-bert` Python module is not yet completed. For the purpose of demonstrating how BERT predicts the missing words, we will show the implementation process in Python using the `pytorch_pretrained_bert` library. The reason to use `pytorch_pretrained_bert`(**Keli add citation**) instead of `keras-bert`is that `pytorch_pretrained_bert` has relatively comprehensive functions that makes the prediction of missing words more straightforward. 
+
+After we retrieved the new text data with the error replaced by `[MASK]`, we use the `tokenizer()` function in `pytorch_pretrained_bert` to tokenize the text:
+
+```{python, eval=FALSE}
+tokenized_text = tokenizer.tokenize("There was no possibility of taking a [MASK] that day.")
+tokenized_text
+>>> ['there', 'was', 'no', 'possibility', 'of', 'taking', 'a', '[MASK]', 'that', 'day', '.']
+```
+
+We then get the index of `[MASK]` within the sentence and save it to a list. Since we only have one `[MASK]` token, the list has only one element:
+
+```{python, eval=FALSE}
+mask_index = 7
+```
+
+`pytorch_pretrained_bert` has a dictionary of tokens generated from the pre-training stage. The tokens include the vocabulary, puncuations and special symbols. Each token in the dictionary is given an index, represented as `{token: index}`. The function `convert_tokens_to_ids()` encodes the tokens we got previously to their positional indices in the tokens dictionary and collects them into a list:
+
+```{python, eval=FALSE}
+indexed_tokens = tokenizer.convert_tokens_to_ids(tokenized_text)
+indexed_tokens
+>>> [2045, 2001, 2053, 6061, 1997, 2635, 1037, 103, 2008, 2154, 1012]
+```
+
+The next step is to encode the text by its segments. The model encodes a sentence of representing each word in the sentence with the positional index of the sentence in the provided corpus. For example, the example text has only one sentence "There was no possibility of taking a [MASK] that day." Therefore, the position of the sentence is "0", and the encoding for each word in the sentence, including the period is a series of "0" to the length of the sentence:
+
+```{python, eval=FALSE}
+segments_tokens = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+```
+
+The previous two steps give us two set of encoding — `indexed_tokens` that contains the encoding for each token, and `segments_tokens` that contains the encoding for each sentence. These two encoding layers that we feed to BERT Masked Language Model. The model takes tensor objects as inputs [@paszke2017automatic], therefore we transformed the two lists into tensor objects before hands. These two tensor objects has two dimensions. The first dimension is the container, and the second dimension is the length of the token lists.
+
+```{python, eval=FALSE}
+tokens_tensor = torch.tensor([indexed_tokens])
+tokens_tensor 
+
+segments_tensor = torch.tensor([segments_encodes])
+segments_tensor
+>>> [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
+```
+
+The encoding layers can be represented as the following:
+
+```{r table3, echo=FALSE, message=FALSE, warnings=FALSE, results='asis'}
+tabl <- "
+|        |'there' |'was' |'no' |'possibility'|'of'|'taking'|'a' |'[MASK]'|'that'|'day'| '.'|
+|--------|--------|------|-----|-------------|----|--------|----|--------|------|-----|----|
+|token   |2045    |2001  |2053 |6061         |1997|2635    |1037|103     |2008  |2154 |1012|
+|segment |0       |0     |0    |0            | 0  |0       |0   |0       |0     |0    |0   |
+
+
+
+Table2. The smoothed probability table
+"
+cat(tabl) # output the table in a format good for HTML/PDF/docx conversion
+```
+
+We then load the pre-trained BertForMaskedLM and feed the two tensor objects to it. The model then returns a tensor object that has three dimensions. The `predictions` tensor objects contains the prediction score of all the words in the vocabulary. 
+
+```{python, eval=FALSE}
+model = BertForMaskedLM.from_pretrained('bert-base-uncased')
+predictions = model(tokens_tensor, segments_tensor)
+predictions
+```
+
+To get the prediction, we will get the element with the highest prediction score and retrieve its index. The retrieved index is then used to find the corresponding token in the tokens dictionary. The predicted word is "walk", which matches with the original sentence in **Jane Eyre**. 
+
+```{python, eval=FALSE}
+predicted_word_index = torch.argmax(predictions[0, mask_index]).item()
+predicted_word_index
+>>> 3328
+predicted_word_token = tokenizer.convert_ids_to_tokens([predicted_index])[0]
+predicted_word_token
+>>> walk
+```
 
 # Stylized example
 
