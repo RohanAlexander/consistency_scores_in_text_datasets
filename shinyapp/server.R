@@ -13,8 +13,8 @@ token <- drop_auth()
 saveRDS(token, file = "token.rds")
 drop_dir() %>% 
   filter(.tag == "Arianna")
-#trigramsDF <- drop_read_csv("Arianna/trigramsDF.csv")
-trigramsDF <- read_csv("trigramsDF.csv")
+trigramsDF <- drop_read_csv("Arianna/trigramsDF.csv")
+#trigramsDF <- read_csv("trigramsDF.csv")
 server <- function(input, output, session) {
 #### Internal consistency score ####
   getInternalResults <- eventReactive(input$getInternalResult, {
@@ -105,7 +105,6 @@ server <- function(input, output, session) {
   })
   
   inFile <- reactive({input$btn_getOCR})
-  volumes = getVolumes()
   observe({  
     if(!is.null(inFile())){
       text_OCR <- get_OCR_text(input$btn_getOCR$datapath)

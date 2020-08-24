@@ -3,8 +3,8 @@ library(textclean)
 library(hunspell)
 library(tidyverse)
 library(rdrop2)
-#trigramsDF <- drop_read_csv("Arianna/trigramsDF.csv")
-trigramsDF <- read_csv("trigramsDF.csv")
+trigramsDF <- drop_read_csv("Arianna/trigramsDF.csv")
+#trigramsDF <- read_csv("trigramsDF.csv")
 
 # Tokenizer function
 tokenizer <- function(corpus) {
