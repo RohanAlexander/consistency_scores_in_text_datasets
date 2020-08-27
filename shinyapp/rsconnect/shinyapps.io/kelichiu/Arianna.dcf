@@ -5,9 +5,9 @@ account: kelichiu
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 2556474
-bundleId: 3551015
+bundleId: 3565143
 url: https://kelichiu.shinyapps.io/Arianna/
-when: 1598269874.08137
+when: 1598561923.97984
 asMultiple: FALSE
 asStatic: FALSE
 ignoredFiles: hashtable.Rdata

@@ -28,19 +28,19 @@ navbarPage("Arianna",
       ),
       # Action button row
       fluidRow(
-        column(12, 
+        column(12,
                actionButton("getInternalResult", "Get Result", class = "btn-primary"),
         )
       ),
       # Result row
       shinyjs::hidden(
         fluidRow( id = "internal_results_row",
-          column(8, 
-                 h5("Unexpected Words"),
+          column(6,
+                 h5("Internal Consistency Score"),
                  tableOutput("unexpected_words"),
           ),
-          column(4, 
-                 h5("Internal Consistency Score"),
+          column(6,
+                 h5("Unexpected Words"),
                  tableOutput("internal_consistency_score"),
           )
         )
@@ -57,25 +57,25 @@ navbarPage("Arianna",
           textAreaInput("myTextData_e", "", value = "", height = "300px"),
           actionButton("clearText_e", "Clear", class = "btn-sm btn-outline-secondary"),
         )),
-        column(6, wellPanel(
+        column(6,
           imageOutput("OCR_image")
-        ))
+        )
       ),
       # Action button row
       fluidRow(
-        column(12, 
+        column(12,
                actionButton("getExternalResult", "Get Result", class = "btn-primary"),
         )
       ),
       # Result row
       shinyjs::hidden(
         fluidRow( id = "external_results_row",
-          column(8, 
-                 h5("Unexpected Words"),
+          column(6,
+                 h5("External Consistency Score"),
                  tableOutput("unexpected_words_e"),
           ),
-          column(4, 
-                 h5("External Consistency Score"),
+          column(6,
+                 h5("Unexpected Words"),
                  tableOutput("external_consistency_score"),
           )
         )
