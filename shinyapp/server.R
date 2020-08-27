@@ -1,9 +1,5 @@
 library(aRianna)
-#library(tau)
-#library(tm)
 source("training_data.R")
-#source("internal_consistency_func.R")
-#source("external_consistency_func.R")
 source("OCR_text_func.R")
 
 server <- function(input, output, session) {
