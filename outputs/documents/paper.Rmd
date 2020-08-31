@@ -293,7 +293,7 @@ Using a spell-checker, "wlak" is identified as an error and is substituted by `[
 
 > "There was no possibility of taking a [MASK] that day." 
 
-The implementation of text correction with BERT in R with the `keras-bert` Python module is not yet completed. For the purpose of demonstrating how BERT predicts the missing words, we will show the implementation process in Python using the `pytorch_pretrained_bert` library. The reason to use `pytorch_pretrained_bert` [@Wolf2019HuggingFacesTS] instead of `keras-bert`is that `pytorch_pretrained_bert` has relatively comprehensive functions that makes the prediction of missing words more straightforward. 
+The implementation of text correction with BERT in R with the `keras-bert` Python module is not yet completed. For the purpose of demonstrating how BERT predicts the missing words, we will show the implementation process in Python using the `pytorch_pretrained_bert` library. The reason to use `pytorch_pretrained_bert`(**Keli add citation**) instead of `keras-bert`is that `pytorch_pretrained_bert` has relatively comprehensive functions that makes the prediction of missing words more straightforward. 
 
 After we retrieved the new text data with the error replaced by `[MASK]`, we use the `tokenizer()` function in `pytorch_pretrained_bert` to tokenize the text:
 
