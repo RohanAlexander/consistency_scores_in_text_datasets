@@ -1,5 +1,5 @@
 # Source tutorial: https://blogs.rstudio.com/ai/posts/2019-09-30-bert-r/
-Sys.setenv(TF_KERAS=1) 
+Sys.setenv(TF_KERAS=1)
 # to see python version
 reticulate::py_config()
 setwd("~/Desktop/repos/consistency_scores_in_text_datasets/model_starters")
@@ -19,9 +19,12 @@ library(hunspell)
 incorrectwords <- hunspell(text_stripped)
 
 tokens <- unlist(strsplit(text_stripped, "[^aA-zZ<>/]"))
-mask_indices <- match(c("imlfon", "Kism"),tokens)
-tokens[12] = tokens[33] = "[MASK]"
-toString(tokens)
+mask_indices <- match(incorrectwords[[1]],tokens)
+for(i in mask_indices){
+  tokens[i] = "MASK"
+}
+str <- toString(tokens)
+str <- strip(str)
 #### 3. Configure paths to the BERT pre-trained files variables
 # The zip file is available through the tutorial link at the first line
 pretrained_path = '../../../uncased_L-12_H-768_A-12'
@@ -44,21 +47,29 @@ model = k_bert$load_trained_model_from_checkpoint(
 
 library(zeallot)
 #### 5. Tokenize the text and get the encoding
-tokens <- tokenizer$tokenize(toString(tokens))
-encodes <- tokenizer$encode(toString(tokens))
+tokens <- tokenizer$tokenize(str)
+encodes <- tokenizer$encode(str)
+
+for(i in mask_indices){
+  encodes[[1]][i+1] = 103
+}
 
 #### 6. Get encoded inputs for the model: train, segments, targets
 indices <- encodes[1]
 indices <- as.matrix(indices)
 segments <- encodes[2]
 segments <- as.matrix(segments)
-## Manually flag word 13 and word 33 as masked words to be predicted 
-masks <- as.matrix(list(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0,
-                        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                        0, 0, 0, 0, 0, 0))
+
+## Manually flag word 13 and word 33 as masked words to be predicted
+masks <- as.matrix(list(0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                        0, 0, 0, 0, 0, 0, 0, 0, 0, 0))
 train <- indices
 targets <- masks
 
+library(dplyr)
 train = do.call(cbind,indices) %>% t()
 segments = do.call(cbind,segments) %>% t()
 targets = do.call(cbind,masks) %>% t()
@@ -67,5 +78,6 @@ targets = do.call(cbind,masks) %>% t()
 prediction <- model$predict(list(train,segments,targets))
 predictions <- np$argmax(prediction[1], axis=-1L)
 
-# 8. Use the index provided by prediction matrix to look for the predicted word from the token_dict
-
+#### 8. Use the index provided by prediction matrix to look for the predicted word from the token_dict
+token_dict[predictions[13]+1]
+token_dict[predictions[33]+1]
