@@ -1,0 +1,41 @@
+---
+title: "Literature_review"
+author: "Keli Chiu"
+date: "03/10/2020"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## MaskGAN: Better text generation via filling in the ________
+
+Published date: March 1, 2018
+
+Authors: William Fedus, Ian Goodfellow and Andrew M. Dai 
+
+Affiliation: Google Brain 
+
+URL: https://arxiv.org/pdf/1801.07736.pdf
+
+### Background
+
+At the time where the paper was published, text generation techniques with the best results were commonly built on Recurrent Neural Networks (RNNs). In this paper, the authors proposed a new framework that involves the usage of Generative Adversarial Networks (GANs) (Goodfellow et al., 2014). GAN is a framework for training generative models in an adversarial setup that consists of a discriminator and a generator, where the model learns from the competition between the discriminator and the generator. GAN is widely used in image generation. In this paper, the authors applied the GAN model in the context of natural language to achieve text generation.
+
+### How it works
+According to the paper, GANs commonly suffer from issues such as training instability and mode dropping, both are exacerbated in a textual setting due to the discrete nature of text. The authors reduce the impact of these problems by training the model on a text in-filing task. In this task, portions of a body of text are deleted or redacted, and the model aims to infill the missing portions of text to be indistinguishable from the original data in an autoregressive manner.
+ 
+The network is trained by the task of text-infilling using the sequence-to-sequence (Seq2Seq) architecture (Sutskever et al., 2014) for both the generator and the discriminator. During the training process, the encoder of the generator produces the context representation using the masked sequence. The discriminator then conditions on the generator’s output and the masked sequence to compute the probability of a word in the generator’s output as being fake or real. If one wishes to do text-generation instead of text-infilling, it can be done by setting all inputs to be blanks (masked).
+
+### Limitations
+ 
+* According to one reviewer on OpenReview: “because the model aims to fill-in blanks from the text around (up to that time), generated texts are generally locally valid but not always valid globally.”
+
+* Another reviewer raised the concern of the model performance.
+
+* As pointed out by the paper Enabling text infilling by language models: “While their approach is effective at infilling individual words, it is somewhat redundant as the model must “predict” the unmasked text in $\tilde{x}$. Additionally, a model is not guaranteed to exactly reproduce the unmasked text.”
+
+### Other notes
+
+* One of the authors, Goodfellow, is the person who co-invented GAN.
