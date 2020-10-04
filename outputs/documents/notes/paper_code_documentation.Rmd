@@ -99,7 +99,171 @@ ValueError: Invalid argument for class
 
 I have change the --mask_rate 30 and --blank_num 1 with variations between int, float and percentage, but no value could successfully run the code. Googled solutions but no relevant answers were found.
 
-## Paper: Text Infilling
+## Paper: Enabling Language Models to Fill in the Blanks
 
-Extra step
+Published date: September 10, 2020
+
+Authors: Chris Donahue, Mina Lee, Percy Liang
+
+Affiliation: Stanford University
+
+Code URL: https://github.com/chrisdonahue/ilm
+
+### Result
+
+Not able to follow through the code tutorial from Github. Google Collab code generates demo successfully.
+
+## Steps for Github repo
+
+1. Download the code and initialize
+
+``` {python, eval = FALSE}
+git clone git@github.com:chrisdonahue/ilm.git
+cd ilm
+pip install -r requirements.txt
+python -c "import nltk; nltk.download('punkt')"
+pip install -e .
+``` 
+
+You might have to run extra code to install required packages if you don't have them already. In my case, I had to get `nltk`.
+
+``` {python, eval = FALSE}
 pip install nltk
+``` 
+
+2. The following script was provided to download training dataset and create training examples:
+
+``` {sh, eval = FALSE}
+DATASET=arxiv_cs_abstracts
+
+pushd data
+./get_${DATASET}.sh
+popd
+
+for SPLIT in train valid
+do
+	python create_ilm_examples.py \
+		${SPLIT} \
+		data/char_masks/${DATASET} \
+		--seed 0 \
+		--data_name ${DATASET} \
+		--data_split ${SPLIT}
+done
+``` 
+
+The above code was saved as a sh script and execute by the following command in the terminal:
+
+``` {python, eval = FALSE}
+./script.sh
+```
+
+And the above execution raised an error:
+
+``` {python, eval = FALSE}
+~/desktop/repos/ilm/data ~/desktop/repos/ilm
+~/desktop/repos/ilm/data/raw_data/arxiv_cs_abstracts ~/desktop/repos/ilm/data ~/desktop/repos/ilm
+./get_arxiv_cs_abstracts.sh: line 5: wget: command not found
+sed: illegal option -- r
+usage: sed script [-Ealn] [-i extension] [file ...]
+       sed [-Ealn] [-i extension] [-e script] ... [-f script_file] ... [file ...]
+./get_arxiv_cs_abstracts.sh: line 5: wget: command not found
+gunzip: can't stat: arxiv_cs_abstracts.txt.gz (arxiv_cs_abstracts.txt.gz.gz): No such file or directory
+./get_arxiv_cs_abstracts.sh: line 7: sha256sum: command not found
+~/desktop/repos/ilm/data ~/desktop/repos/ilm
+~/desktop/repos/ilm
+Traceback (most recent call last):
+  File "create_ilm_examples.py", line 158, in <module>
+    limit=args.max_num_documents)
+  File "/Users/kelichiu/Desktop/repos/ilm/ilm/datasets.py", line 24, in get_dataset
+    d = arxiv_cs_abstracts(split, *args, data_dir=data_dir, **kwargs)
+  File "/Users/kelichiu/Desktop/repos/ilm/ilm/datasets.py", line 63, in arxiv_cs_abstracts
+    with open(os.path.join(data_dir, 'arxiv_cs_abstracts.txt'), 'r') as f:
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/kelichiu/Desktop/repos/ilm/data/raw_data/arxiv_cs_abstracts/arxiv_cs_abstracts.txt'
+Traceback (most recent call last):
+  File "create_ilm_examples.py", line 158, in <module>
+    limit=args.max_num_documents)
+  File "/Users/kelichiu/Desktop/repos/ilm/ilm/datasets.py", line 24, in get_dataset
+    d = arxiv_cs_abstracts(split, *args, data_dir=data_dir, **kwargs)
+  File "/Users/kelichiu/Desktop/repos/ilm/ilm/datasets.py", line 63, in arxiv_cs_abstracts
+    with open(os.path.join(data_dir, 'arxiv_cs_abstracts.txt'), 'r') as f:
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/kelichiu/Desktop/repos/ilm/data/raw_data/arxiv_cs_abstracts/arxiv_cs_abstracts.txt'
+(project_ilm) (base) Kelis-MacBook-Pro:ilm kelichiu$ ./script.sh
+~/desktop/repos/ilm/data ~/desktop/repos/ilm
+./script.sh: line 4: data/get_arxiv_cs_abstracts.sh: No such file or directory
+~/desktop/repos/ilm
+Traceback (most recent call last):
+  File "create_ilm_examples.py", line 158, in <module>
+    limit=args.max_num_documents)
+  File "/Users/kelichiu/Desktop/repos/ilm/ilm/datasets.py", line 24, in get_dataset
+    d = arxiv_cs_abstracts(split, *args, data_dir=data_dir, **kwargs)
+  File "/Users/kelichiu/Desktop/repos/ilm/ilm/datasets.py", line 63, in arxiv_cs_abstracts
+    with open(os.path.join(data_dir, 'arxiv_cs_abstracts.txt'), 'r') as f:
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/kelichiu/Desktop/repos/ilm/data/raw_data/arxiv_cs_abstracts/arxiv_cs_abstracts.txt'
+Traceback (most recent call last):
+  File "create_ilm_examples.py", line 158, in <module>
+    limit=args.max_num_documents)
+  File "/Users/kelichiu/Desktop/repos/ilm/ilm/datasets.py", line 24, in get_dataset
+    d = arxiv_cs_abstracts(split, *args, data_dir=data_dir, **kwargs)
+  File "/Users/kelichiu/Desktop/repos/ilm/ilm/datasets.py", line 63, in arxiv_cs_abstracts
+    with open(os.path.join(data_dir, 'arxiv_cs_abstracts.txt'), 'r') as f:
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/kelichiu/Desktop/repos/ilm/data/raw_data/arxiv_cs_abstracts/arxiv_cs_abstracts.txt'
+(project_ilm) (base) Kelis-MacBook-Pro:ilm kelichiu$ ./script.sh
+~/desktop/repos/ilm/data ~/desktop/repos/ilm
+./script.sh: line 4: data/get_arxiv_cs_abstracts.sh: No such file or directory
+~/desktop/repos/ilm
+Traceback (most recent call last):
+  File "create_ilm_examples.py", line 158, in <module>
+    limit=args.max_num_documents)
+  File "/Users/kelichiu/Desktop/repos/ilm/ilm/datasets.py", line 24, in get_dataset
+    d = arxiv_cs_abstracts(split, *args, data_dir=data_dir, **kwargs)
+  File "/Users/kelichiu/Desktop/repos/ilm/ilm/datasets.py", line 63, in arxiv_cs_abstracts
+    with open(os.path.join(data_dir, 'arxiv_cs_abstracts.txt'), 'r') as f:
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/kelichiu/Desktop/repos/ilm/data/raw_data/arxiv_cs_abstracts/arxiv_cs_abstracts.txt'
+Traceback (most recent call last):
+  File "create_ilm_examples.py", line 158, in <module>
+    limit=args.max_num_documents)
+  File "/Users/kelichiu/Desktop/repos/ilm/ilm/datasets.py", line 24, in get_dataset
+    d = arxiv_cs_abstracts(split, *args, data_dir=data_dir, **kwargs)
+  File "/Users/kelichiu/Desktop/repos/ilm/ilm/datasets.py", line 63, in arxiv_cs_abstracts
+    with open(os.path.join(data_dir, 'arxiv_cs_abstracts.txt'), 'r') as f:
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/kelichiu/Desktop/repos/ilm/data/raw_data/arxiv_cs_abstracts/arxiv_cs_abstracts.txt'
+
+```
+
+## Google Colab
+
+Link: https://colab.research.google.com/drive/1So95M0hHefyNm_eELglCna_ZayoDX6KV?usp=sharing
+
+### Input
+
+``` {txt, eval = FALSE}
+English Class
+
+Christie was good at doing _. _ _ _ She ended up failing the test.
+```
+
+### Encode
+
+``` {txt, eval = FALSE}
+English Class
+
+Christie was good at doing<|infill_word|>.<|infill_paragraph|><|infill_sentence|>
+  <|infill_sentence|> She ended up failing the test.
+```
+
+### Output
+
+``` {txt, eval = FALSE}
+English Class
+
+Christie was good at doing things. One day at the library she had to take a math test. 
+She made a terrible grade. Christie felt terrible and did it anyways. 
+She ended up failing the test.
+
+English Class
+
+Christie was good at doing homework. She would stay up late to study. 
+When she was home for class, she would go into and out of class. 
+But her teacher couldn't find her anywhere. She ended up failing the test.
+```
+
