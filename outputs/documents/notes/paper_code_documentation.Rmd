@@ -1,0 +1,105 @@
+---
+title: "paper_code_documentation"
+author: "Keli Chiu"
+date: "03/10/2020"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Paper: Text Infilling
+
+Published date: January 18, 2019
+
+Authors: Wanrong Zhu, Zhiting Hu, Eric P. Xing 
+
+Affiliation: Peking University, Carnegie Mellon University, Petuum Inc. 
+
+Code URL: https://github.com/VegB/Text_Infilling
+
+### Result
+
+Not able to follow through the code tutorial.
+
+### Steps:
+
+1. Download the code and install Texar.
+
+``` {python, eval = FALSE}
+git clone https://github.com/VegB/Text_Infilling
+cd Text_Infilling
+pip install --user -e .    
+```
+
+2. Navigate to the infilling demo directory and download the dataset. The instruction provided on Github didn't work, I followed the `README.MD` in the `text_infilling` directory from this point. Downloaded data is stored in `yelp_data/`.
+
+``` {python, eval = FALSE}
+cd text_infilling
+python data_utils.py
+```
+
+You might have to run extra code to install required packages if you don't have them already. In my case, I had to get `tensorflow` and `matplotlib`.
+
+``` {python, eval = FALSE}
+pip install "tensorflow>=1.15,<2.0" 
+pip install matplotlib
+```
+
+3. Code template to execute is provided as follow:
+
+``` {python, eval = FALSE}
+python [MODEL].py --mask_rate [MASK_RATE] --blank_num [BLANK_NUM] 
+  --filename_prefix 'pos.' --data_dir './yelp_data/pos/'
+```
+
+Here is what I tried, set mask rate to 30%, number of blank in an example is 1, and chose the self-attention mode.
+
+``` {python, eval = FALSE}
+python self_attn.py --mask_rate 30 --blank_num 1 --filename_prefix 'pos.' 
+  --data_dir './yelp_data/pos/'
+```
+
+An Error was raised from the above code. The error message:
+
+``` {python, eval = FALSE}
+Traceback (most recent call last):
+  File "self_attn.py", line 335, in <module>
+    tf.app.run(main=_main)
+  File "/Users/kelichiu/Desktop/project_tif/lib/python3.7/site-packages/tensorflow_core/python/platform/app.py", 
+  line 40, in run
+    _run(main=main, argv=argv, flags_parser=_parse_flags_tolerate_undef)
+  File "/Users/kelichiu/Desktop/project_tif/lib/python3.7/site-packages/absl/app.py", 
+  line 300, in run
+    _run_main(main, args)
+  File "/Users/kelichiu/Desktop/project_tif/lib/python3.7/site-packages/absl/app.py", 
+  line 251, in _run_main
+    sys.exit(main(argv))
+  File "self_attn.py", line 64, in _main
+    hparams=args.word_embedding_hparams)
+  File "/Users/kelichiu/Desktop/repos/Text_Infilling/texar/modules/embedders/embedders.py", 
+  line 53, in __init__
+    self._hparams)
+  File "/Users/kelichiu/Desktop/repos/Text_Infilling/texar/modules/embedders/embedder_base.py", 
+  line 33, in _init_parameterized_embedding
+    hparams, init_value, num_embeds, self.variable_scope)
+  File "/Users/kelichiu/Desktop/repos/Text_Infilling/texar/modules/embedders/embedder_utils.py", 
+  line 191, in get_embedding
+    initializer = layers.get_initializer(hparams["initializer"])
+  File "/Users/kelichiu/Desktop/repos/Text_Infilling/texar/core/layers.py", 
+  line 333, in get_initializer
+    initializer = utils.get_instance(hparams["type"], kwargs, modules)
+  File "/Users/kelichiu/Desktop/repos/Text_Infilling/texar/utils/utils.py", 
+  line 209, in get_instance
+    (class_.__module__, class_.__name__, key, class_args))
+ValueError: Invalid argument for class 
+  tensorflow.python.ops.init_ops.RandomNormal: mean, valid args:set()
+```
+
+I have change the --mask_rate 30 and --blank_num 1 with variations between int, float and percentage, but no value could successfully run the code. Googled solutions but no relevant answers were found.
+
+## Paper: Text Infilling
+
+Extra step
+pip install nltk
