@@ -144,7 +144,33 @@ Limitations are not discussed in the paper, not found in other papers, and publi
 
 None
 
+## XLNet: Generalized Autoregressive Pretrainingfor Language Understanding
+
+Published date: January 2, 2020
+
+Authors: Zhilin Yang, Zihang Dai, Yiming Yang, Jaime Carbonell, Ruslan Salakhutdinov, Quoc V. Le
+
+Affiliation: Carnegie Mellon University, Google AI Brain Team
+
+URL: https://arxiv.org/pdf/1906.08237.pdf
 
 
+### Background
+
+According to the author, there are two common pre-training objectives in the real of unsupervised representation learning for NLP — Autoregressive and autoencoding. Autoregressive models such as GPT-2 seek to estimate the probability distribution of a corpus by factorizing the likelihood with either a forward direction (from left to right) or a backward direction (from right to left). This training method is not effective for the models to take contexts on both direction into account. On the other hand, autoencoding-based model, BERT, is not restricted to the uni-directional density estimation and is able to learn in a bi-directional way. However, BERT is not able to model the joint probability and assumes that predicted blanks are independent from each other. The strategy of XLNet is to bring the best of both autoregressive and autoencoding models and leave out their weakness.
 
 
+### How it works
+
+The strategy of XLNet is based on permutation language modeling, which captures bidirectional context by training an autoregressive model on all possible permutation of tokens in a sentence. For example, in a sequence of three tokens [1, 2, 3], the permutations are 3! = {[1,2,3], [1,3,2], [2,1,3], [2,3,1], [3,1,2], [3,2,1]}. The model is auto-regressive over all the permutations and calculates the probability of token $x_i$ given the preceding context $x<i$ from any permutation of Z. Taking all three positions and all 3! permutations into account, the permutation operation makes each position learns to use contextual information from all positions, including bidirectional context.
+
+Another strategy XLNet utilizes is two-stream self-attention. For each token position $i$, there are two associated vectors at each self-attention layer. One layer is content stream attention (denoted as $h$), which is a standard hidden states in Transformer. The other layer, called the query representation stream, is an additional self-attention layer unique to XLNet, created to preserve the contexts information. For example, a token $x_i$ can serve as two roles. When it is used as content to predict other tokens, the content representation is used. On the other hand, if $x_i$ is the token to be predicted, the query representation is used to preserve context information ($x<i$) and the position information of $x_i$.
+
+
+### Limitations
+
+* According to Ajit Rajasekharan's post on Quora dated July 6, 2019, XLNet requires more compute power and memory (GPU/TPU memory) in comparison to BERT.
+
+### Other notes
+
+* XLNet integrates ideas from Transformer-XL, the state-of-the-art autoregressive model
