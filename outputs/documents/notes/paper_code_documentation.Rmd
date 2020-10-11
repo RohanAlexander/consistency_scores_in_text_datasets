@@ -131,7 +131,7 @@ You might have to run extra code to install required packages if you don't have 
 pip install nltk
 ``` 
 
-2. The following script was provided to download training dataset and create training examples:
+2. The following script was provided to download training dataset and create training example. It requires us saving the script as an sh file in order to execute it. I saved it in the repo root directory as script.sh. 
 
 ``` {sh, eval = FALSE}
 DATASET=arxiv_cs_abstracts
@@ -151,84 +151,34 @@ do
 done
 ``` 
 
-The above code was saved as a sh script and execute by the following command in the terminal:
+3. Execute the script by `./script.sh`. If permission error is displayed, try  `chmod +x script.sh` then execute the script again:
 
-``` {python, eval = FALSE}
+``` {sh, eval = FALSE}
+# chmod +x script.sh
 ./script.sh
 ```
 
-And the above execution raised an error:
+3.1. If the above execution raises an error that tells you that `arxiv_cs_abstracts.txt` is not found, go to this link to download the missing file: https://docs.google.com/uc?export=download&id=1N3MbvpgZAmNgiZgnpXAQFzHrU7Tt3Blb
 
-``` {python, eval = FALSE}
-~/desktop/repos/ilm/data ~/desktop/repos/ilm
-~/desktop/repos/ilm/data/raw_data/arxiv_cs_abstracts ~/desktop/repos/ilm/data ~/desktop/repos/ilm
-./get_arxiv_cs_abstracts.sh: line 5: wget: command not found
-sed: illegal option -- r
-usage: sed script [-Ealn] [-i extension] [file ...]
-       sed [-Ealn] [-i extension] [-e script] ... [-f script_file] ... [file ...]
-./get_arxiv_cs_abstracts.sh: line 5: wget: command not found
-gunzip: can't stat: arxiv_cs_abstracts.txt.gz (arxiv_cs_abstracts.txt.gz.gz): No such file or directory
-./get_arxiv_cs_abstracts.sh: line 7: sha256sum: command not found
-~/desktop/repos/ilm/data ~/desktop/repos/ilm
-~/desktop/repos/ilm
-Traceback (most recent call last):
-  File "create_ilm_examples.py", line 158, in <module>
-    limit=args.max_num_documents)
-  File "/Users/kelichiu/Desktop/repos/ilm/ilm/datasets.py", line 24, in get_dataset
-    d = arxiv_cs_abstracts(split, *args, data_dir=data_dir, **kwargs)
-  File "/Users/kelichiu/Desktop/repos/ilm/ilm/datasets.py", line 63, in arxiv_cs_abstracts
-    with open(os.path.join(data_dir, 'arxiv_cs_abstracts.txt'), 'r') as f:
-FileNotFoundError: [Errno 2] No such file or directory: '/Users/kelichiu/Desktop/repos/ilm/data/raw_data/arxiv_cs_abstracts/arxiv_cs_abstracts.txt'
-Traceback (most recent call last):
-  File "create_ilm_examples.py", line 158, in <module>
-    limit=args.max_num_documents)
-  File "/Users/kelichiu/Desktop/repos/ilm/ilm/datasets.py", line 24, in get_dataset
-    d = arxiv_cs_abstracts(split, *args, data_dir=data_dir, **kwargs)
-  File "/Users/kelichiu/Desktop/repos/ilm/ilm/datasets.py", line 63, in arxiv_cs_abstracts
-    with open(os.path.join(data_dir, 'arxiv_cs_abstracts.txt'), 'r') as f:
-FileNotFoundError: [Errno 2] No such file or directory: '/Users/kelichiu/Desktop/repos/ilm/data/raw_data/arxiv_cs_abstracts/arxiv_cs_abstracts.txt'
-(project_ilm) (base) Kelis-MacBook-Pro:ilm kelichiu$ ./script.sh
-~/desktop/repos/ilm/data ~/desktop/repos/ilm
-./script.sh: line 4: data/get_arxiv_cs_abstracts.sh: No such file or directory
-~/desktop/repos/ilm
-Traceback (most recent call last):
-  File "create_ilm_examples.py", line 158, in <module>
-    limit=args.max_num_documents)
-  File "/Users/kelichiu/Desktop/repos/ilm/ilm/datasets.py", line 24, in get_dataset
-    d = arxiv_cs_abstracts(split, *args, data_dir=data_dir, **kwargs)
-  File "/Users/kelichiu/Desktop/repos/ilm/ilm/datasets.py", line 63, in arxiv_cs_abstracts
-    with open(os.path.join(data_dir, 'arxiv_cs_abstracts.txt'), 'r') as f:
-FileNotFoundError: [Errno 2] No such file or directory: '/Users/kelichiu/Desktop/repos/ilm/data/raw_data/arxiv_cs_abstracts/arxiv_cs_abstracts.txt'
-Traceback (most recent call last):
-  File "create_ilm_examples.py", line 158, in <module>
-    limit=args.max_num_documents)
-  File "/Users/kelichiu/Desktop/repos/ilm/ilm/datasets.py", line 24, in get_dataset
-    d = arxiv_cs_abstracts(split, *args, data_dir=data_dir, **kwargs)
-  File "/Users/kelichiu/Desktop/repos/ilm/ilm/datasets.py", line 63, in arxiv_cs_abstracts
-    with open(os.path.join(data_dir, 'arxiv_cs_abstracts.txt'), 'r') as f:
-FileNotFoundError: [Errno 2] No such file or directory: '/Users/kelichiu/Desktop/repos/ilm/data/raw_data/arxiv_cs_abstracts/arxiv_cs_abstracts.txt'
-(project_ilm) (base) Kelis-MacBook-Pro:ilm kelichiu$ ./script.sh
-~/desktop/repos/ilm/data ~/desktop/repos/ilm
-./script.sh: line 4: data/get_arxiv_cs_abstracts.sh: No such file or directory
-~/desktop/repos/ilm
-Traceback (most recent call last):
-  File "create_ilm_examples.py", line 158, in <module>
-    limit=args.max_num_documents)
-  File "/Users/kelichiu/Desktop/repos/ilm/ilm/datasets.py", line 24, in get_dataset
-    d = arxiv_cs_abstracts(split, *args, data_dir=data_dir, **kwargs)
-  File "/Users/kelichiu/Desktop/repos/ilm/ilm/datasets.py", line 63, in arxiv_cs_abstracts
-    with open(os.path.join(data_dir, 'arxiv_cs_abstracts.txt'), 'r') as f:
-FileNotFoundError: [Errno 2] No such file or directory: '/Users/kelichiu/Desktop/repos/ilm/data/raw_data/arxiv_cs_abstracts/arxiv_cs_abstracts.txt'
-Traceback (most recent call last):
-  File "create_ilm_examples.py", line 158, in <module>
-    limit=args.max_num_documents)
-  File "/Users/kelichiu/Desktop/repos/ilm/ilm/datasets.py", line 24, in get_dataset
-    d = arxiv_cs_abstracts(split, *args, data_dir=data_dir, **kwargs)
-  File "/Users/kelichiu/Desktop/repos/ilm/ilm/datasets.py", line 63, in arxiv_cs_abstracts
-    with open(os.path.join(data_dir, 'arxiv_cs_abstracts.txt'), 'r') as f:
-FileNotFoundError: [Errno 2] No such file or directory: '/Users/kelichiu/Desktop/repos/ilm/data/raw_data/arxiv_cs_abstracts/arxiv_cs_abstracts.txt'
+3.2. Unzip the file and rename it to `arxiv_cs_abstracts.txt`, move it to `repo/data/raw_data/arxiv_cs_abstracts/`
+ 
+4. The following script was provided to train the model (fine-tune GPT-2) by the training examples. It requires us saving the script as an sh file in order to execute it. I saved it in the repo root directory as training.sh. Execute it by `./training.sh`:
 
-```
+``` {sh, eval = FALSE}
+DATASET=arxiv_cs_abstracts
+TRAIN_DIR=train
+EXAMPLES_DIR=data/char_masks/${DATASET}
+python train_ilm.py \
+	experiment_${DATASET} \
+	${TRAIN_DIR} \
+	${EXAMPLES_DIR} \
+	--seed 0 \
+	--train_examples_tag train \
+	--eval_examples_tag valid \
+	--eval_max_num_examples 512
+``` 
+
+The fine-tuning will start. According to the paper, it will take 1 day to complete with GPU. For a computer that doesn't have a GPU, it will take longer.
 
 ## Google Colab
 
