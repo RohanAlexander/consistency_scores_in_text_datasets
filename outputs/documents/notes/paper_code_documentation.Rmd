@@ -111,7 +111,7 @@ Code URL: https://github.com/chrisdonahue/ilm
 
 ### Result
 
-Not able to follow through the code tutorial from Github. Google Collab code generates demo successfully.
+Able to follow through the code tutorial from Github to the point to fine-tuning. Google Colab code generates demo successfully.
 
 ## Steps for Github repo
 
