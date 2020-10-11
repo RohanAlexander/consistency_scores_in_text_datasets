@@ -182,6 +182,7 @@ The fine-tuning will start. According to the paper, it will take 1 day to comple
 
 ## Google Colab
 
+The Google Colab demostrated text-infilling by the model after fine-tuning.
 Link: https://colab.research.google.com/drive/1So95M0hHefyNm_eELglCna_ZayoDX6KV?usp=sharing
 
 ### Input
