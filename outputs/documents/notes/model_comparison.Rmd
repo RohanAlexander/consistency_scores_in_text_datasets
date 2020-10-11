@@ -32,9 +32,13 @@ knitr::opts_chunk$set(echo = TRUE)
 
 * GPT-2 does not rely on data corruption and therefore does not suffer from the pretrain-finetune discrepancy like BERT does
 
+* Can be fine-tuned to do unstricted length of infilling
+
 ### Cons
 
 * The inference time is relatively long.
+
+* GPT-2 predicts the tokens based on previous words and does not take contexts on both side into account.
 
 * According to Caleb Kaiser on Too big to deploy: How GPT-2 is breaking servers, GPT-2 is both compute hungry and memory hungry: "GPT-2 is compute hungry. In order to serve a single prediction, GPT-2 can occupy a CPU at 100% utilization for several minutes. Even with a GPU, a single prediction can still take seconds. ... GPT-2 is memory hungry. Beyond its considerable disk space and compute requirements, GPT-2 also needs large amounts of memory to run without crashing."
 
@@ -47,6 +51,8 @@ knitr::opts_chunk$set(echo = TRUE)
 * Bidirectional contexts are taken into account when predicting tokens by calculating all possible permutations of the factorization order.
 
 * XLNet does not rely on data corruption and therefore does not suffer from the pretrain-finetune discrepancy like BERT does.
+
+* Can be fine-tuned to do unstricted length of infilling
 
 ### Cons
 
