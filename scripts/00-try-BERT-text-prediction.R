@@ -2,7 +2,7 @@
 Sys.setenv(TF_KERAS=1)
 # to see python version
 reticulate::py_config()
-setwd("~/Desktop/repos/consistency_scores_in_text_datasets/model_starters")
+setwd("~/Desktop/repos/consistency_scores_in_text_datasets/scripts/model_starters")
 
 #### 1. Read text from image
 library(tesseract)

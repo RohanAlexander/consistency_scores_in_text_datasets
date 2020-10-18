@@ -1,0 +1,175 @@
+---
+output: 
+  bookdown::pdf_document2:
+    citation_package: natbib
+    keep_tex: false
+    toc: false
+    fig_caption: true
+    latex_engine: pdflatex
+    template: templates/svm-latex-ms.tex
+bibliography: "references.bib"
+header-includes:
+  -  \usepackage{hyperref}
+biblio-style: apalike
+title: "Consistency scores in text data"
+thanks: "Thank you to **X, Y and Z** for helpful comments. A Shiny application for interactive and small-scale examples is available: https://kelichiu.shinyapps.io/Arianna/. An R package for larger scale applications is available: **HERE**. Our code and datasets are available: https://github.com/RohanAlexander/consistency_scores_in_text_datasets. Comments on the `r format(Sys.time(), '%d %B %Y')` version of this paper are welcome at: rohan.alexander@utoronto.ca."
+author:
+- name: Ke-Li Chiu
+  affiliation: University of Toronto
+- name: Rohan Alexander
+  affiliation: University of Toronto
+abstract: "In this paper we introduce a process to clean the text extracted from PDFs using various methods from natural language processing. Our approach compares originally extracted text with the text generated from, or expected by, these methods using earlier text as stimulus. To guide this process, we introduce the notion of a consistency score, which refers to the proportion of text that is unchanged by the model. This is used to monitor changes during the cleaning process, and to compare the messiness of different texts. The methods that we consider are: n-grams, Word2Vec, GloVe, and the GPT models. We illustrate our process on text from the Canadian Hansard and introduce both a Shiny application and an R package to make our process easier for others to adopt."
+keywords: "text-as-data; natural language processing; quantitative analysis."
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+geometry: margin=1in
+fontfamily: mathpazo
+fontsize: 12pt
+# spacing: double
+endnote: no
+graphics: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Introduction
+
+When we think of quantitative analysis, we may like to think that our job is to 'let the data speak'. But this is rarely the case in practise. Datasets can have errors, be biased, incomplete, or messy. In any case, it is the underlying statistical process of which the dataset is an artifact that is typically of interest. In order to use statistical models to understand that process, we typically need to clean and prepare the dataset in some way. This is especially the case when we work with text data. But this cleaning and preparation requires us to make many decisions. To what extent should we correct obvious errors? What about slightly-less-obvious errors? Although cleaning and preparation is a necessary step, we may be concerned about the extent to which have we introduced new errors, and the possibility that we have made decisions that have affected, or even driven, our results.
+
+In this paper we introduce the concept of consistency in a text corpus. Consistency refers to the proportion of words that are able to be forecast by a statistical model, based on preceding words and surrounding context. Further, we define internal consistency as when the model is trained on the corpus itself, and external consistency as when the model is trained on a more general corpus. Together, these concepts provide a guide to the cleanliness and consistency of a text dataset. This can be important when deciding whether a dataset is fit for purpose; when carrying out data cleaning and preparation tasks; and as a comparison between datasets.
+
+To provide an example, consider the sentence, 'the cat in the\dots'. A child who has read this book could tell you that the next word should be 'hat'. Hence if the sentence was actually 'the cat in the bat', then that child would know something was likely wrong. The consistency score would likely be lower than if the sentence were 'the cat in the hat'. After we correct this error, the consistency score would likely increase. By examining how the consistency scores evolve in response to changes made to the text during the data preparation and cleaning stages we can better understand the effect of the changes. Including consistency scores and their evolution when text corpuses are shared allows researchers to be more transparent about their corpus. And finally, the use of consistency scores allows for an increased level of automation in the cleaning process. 
+
+We consider various Transformer language models. These include BERT [@devlin2018bert], GPT-2 [@radford2019language] and XLNet [@yang2019xlnet]. These three models are pre-trained generative unsupervised language models based on the Transformer architecture [@vaswani2017attention]. We started our experiment with BERT. Released by researchers at Google AI Language in 2018, the key innovation of BERT is its application of bidirectional training of the Transformer model, which enables BERT to perform text-infilling without fine-tuning.
+
+We apply our approach to the Canadian Hansard. The Canadian Hansard was digitised by @beelen2017digitization. This was a process by which PDFs were scanned, put through optical character recognition (OCR), and then corrected to a reasonable extent. The dataset is extensive, fit-for-purpose, and, appropriately, it has been used considerably, for instance @rheault2020word. However, there are many issues with the dataset in terms of reading it. We focus on one particular year - **(Rohan pick one)** - and show that our approach can be used to relatively quickly improve the quality of the dataset in a reproducible and consistent manner.
+
+The remainder of our paper is structured as follows: **(Rohan add structure)**. Additionally, we construct a Shiny app available at: **(Rohan add link)**. That app computes internal and external consistency scores for corpus excerpts, and have developed an R Package that allows our approach to be used on larger datasets, which is available at: **(Rohan add link)**.
+
+
+
+# Background
+
+## Language Model
+
+Given the nature of human languages, some combinations of words tend to occur more frequently than others. Think of 'good', which is more often followed by 'morning', than 'duck'. As such, we could consider English text production as a conditional probability, $\mbox{Pr}(w_{k} | w^{k-1}_{1})$, where $k$ is the number of words in a sentence, $w_{k}$ is the predicted word, and $w^{k-1}_{1}$ is the history of the word occurring in a sequence [@brown1992class]. In this way, the generation of some prediction, $w_{k}$, is based on the history, $w^{k-1}_{1}$. This is the underlying principle of all language models. Essentially, a language model is a probability distribution over sequences of words. The goal of statistical language modeling is to estimate probability distributions over different linguistic units — words, sentences, and even documents [@bengio2003neural]. However, this is difficult as language is categorical. If we consider each word in a vocabulary as a category, then the dimensionality of language becomes large [@rosenfeld2000two]. The reason that there is such a variety of statistical language models is that there are various ways of dealing with this fundamental problem.
+
+
+## Pre-trained transformer language models
+
+In recent years, the use of pre-trained language models has played a significant role in advancing natural language processing (NLP) tasks such as reading comprehension, text generation, and even creative writing [@brown2020language]. Pre-trained models remove the need for researchers to prepare training datasets or allot computational resources to the stage of pre-training. Because of this, there has been substantial development in NLP research. In this section we discuss the GPT models from OpenAI and the BERT model from Google.
+
+
+### GPT
+
+OpenAI is an AI research company who openly pursues Artificial General Intelligence — to have machines learn and understand any intellectual tasks as human do [@brundage2018malicious]. OpenAI's Generative Pre-Trained Transformer (GPT) models are pre-trained language models that are built based on the transformer architecture. Proposed by @vaswani2017attention from Google in 2017, the Transformer is a novel network architecture for neural network that outperforms RNN-based and CNN-based models in computational efficiency [@vaswani2017attention]. Since the emergence of the Transformer model, most of the representative pre-trained models are built based on this architecture [@hanretty2018comparing]. Therefore, we can say that Transformer marks a new era of language models.
+
+As of August 2020, OpenAI has three generations of GPT models. GPT was introduced to the public in June, 2018. In the year 2019, its successor GPT-2 was released in three stages. Not long after, in June 2020, OpenAI announced GPT-3, which is the latest GPT model as of July 2020 [@brown2020language]. Since the API of GPT-3 at the moment is only available to a few invited users, public applications of GPT-3 are limited. On the other hand, its predecessor, GPT-2, has enabled researchers made breakthroughs in the past years. @alt2019fine extended GPT-2 to relation extraction, which is a task of identifying the relationship between concepts appeared in text. They had shown a milestone in predicting larger range of distinct relation types with higher confidence [@alt2019fine]. In the field of speech recognition, data scarcity is often an issue due to the difficulty to collect large amount of data from human for learning [@bird2020lstm]. @bird2020lstm employed GPT-2 as part of the solution to generate augmented data for classification. GPT-2 also helped NLP researchers tackling the task of textual paraphrasing. @hegde2020unsupervised used GPT-2 to build an unsupervised paraphrasing model that is not restricted by domain shift within an article, which is a problem faced by the usual supervised models of paraphrasing. 
+
+Most of prior language models are trained in a single domain by supervised learning to perform a single task. OpenAI, on the other hands, train the GPT models to perform many tasks [@radford2019language]. GPT-2 is pre-trained on WebText, a comprehensive dataset that is scrapped from millions of webpages and contains total of 40 GB of text [@radford2019language]. WebText contains all kinds of textual data: dialogues, comments, translations, questions and answers...etc. Such diversity is critical for GPT-2 to be a generalized model that can perform multiple tasks with any domain boundary. However, GPT-2 has the capacity to adapt to a context and generates custom output with the "fine-tuning" technique [@ziegler2019fine]. While the pre-training stage is unsupervised and mandatory, fine-tuning is an optional training stage where GPT can learn to perform new tasks in a supervised or reinforced approach such as stylistic continuation and summarization [@ziegler2019fine]. During the pre-training stage, the model is trained to perform text completion task. Give it a prompt to start and it will generate texts that continues what has been started. In the fine-tuning stage, @radford2019language provided additional training datasets for GPT-2 to generate the texts with specific sentiment, or be descriptive, or even summarize the prompt text.
+
+OpenAI has made GPT-2 open-sourced through Github with Python and Tensorflow [@tensorflow2015-whitepaper]. There is also a package in R that wraps the Python code into a R package, created by @keydanaluraschi2019gpt2. There are three choices of models in terms of parameter sizes — "124M", "355M" and "774M". The R package only permits exploratory experiments with the pre-trained tasks; fine-tuning for new tasks is not available thorough R. To proceed with the implementation of GPT-2 in R, theoretically, we will fine-tune the model through Python and create a wrapper code for R. This could possibility be achieved by employing the `reticulate` R package [@reticulateR] that allows operation of Python code in R. The practicality of this approach is to be further investigated.
+
+GPT-3 has over 175 billions of parameters [@brown2020language]. In the past few years, the growth of parameters of transformer language models expands rapidly. The first generation GPT has 110 million parameters. Released in 2018, GPT-2 has 1.6 billion parameters, and within two years, GPT-3 has grown the size to 175 billion, which is over 100 times than its predecessor. The more parameters there are the better the model can generalize to new tasks; therefore, the increasing amount of parameters accelerates the improvements in text synthesis and downstream NLP tasks [@brown2020language]. GPT-3 can learn NLP tasks with just a handful of example; OpenAI refers this ability as few-shot learning, or in-context learning [@brown2020language]. As a result, we only need to provide GPT-3 a few demonstrations for it to learn a new NLP task. For example, OpenAI team trained GPT-3 to generate "news articles". The prompt input is a plausible first sentence of a news story written by human, and the output is an entire news article generated by the model itself. Without the demonstrations, GPT-3 tends to treat the prompts as "tweets" and generate texts that serve as responses or follow-up tweets. The team fed a few previous news articles in the model’s context as demonstrations, and the model learned to produce the outputs that adapt to the style and length of news stories [@brown2020language]. This few-shot learning ability indicates that the model can learn like human do and would democratize the use of language models to broader fields.
+
+### BERT
+
+BERT stands for Bidirectional Encoder Representations from Transformers [@devlin2018bert]. It was released by researchers at Google AI Language in 2018. The key innovation of BERT is its application of bidirectional training of the Transformer model, which results in a deeper sense of language context and flow. What is bidirectional training? In the context of English language, a sentence is constructed from left to right. The context on the left is used to determine the next word on the right. In this sense, GPT models are unidirectional since the probability of the next word is dependent only on the past. It is also possible to reverse the direction and model the sentence from right to left, and BERT incorporates both directions of left-to-right and right-to-left to model bidirectional contexts. 
+
+BERT is pre-trained by using two unsupervised tasks. The first task is Masked Language Model and and second task is Next Sentence Prediction. The bidirectional approach of BERT is alleviated by the "Masked Language Model" [@devlin2018bert]. The Masked Language Model masks random words in the input corpus which forces the model to predict the original words by "filling in the blank". This training process blends the representation from the left and right context and therefore increases the model's context sensitivity [@nozza2020mask]. In the Next Sentence Prediction process, the model receives two sentences in sequence as input. 50% of the sentences are paired in the right sequence and the ones from the other half have sentences that are paired randomly [@devlin2018bert]. The goal of this process is to have BERT evaluate if the second sentence is the next sentence of the first sentence in the original text and sharpen its capacity to predict the likelihood of the next sentence. 
+
+BERT was pre-trained on BooksCorpus dataset with 800 million words and English Wikipedia with 2,500 million words [@devlin2018bert]. Because BERT employs the Transformer architecture with the self-attention mechanism, fine-tuning is also available with one additional output layer and a task-specific input [@devlin2018bert]. Google AI researchers have fine-tuned BERT for 11 NLP tasks including question-answering and common-sense inference.
+
+BERT implementation in R is also possible through Keras. @kerasbert created a python module called `keras-bert` and the module can be called by R through `reticulate` package [@reticulateR], which enables the operation of Python modules in R. To start, we install the keras-bert model in Python on the machine and load BERT model into R through `reticulate`. Once `keras-bert` is loaded, we can use it to fine-tune BERT on a task-specific training dataset. Fine-tuning is started by tokenizing the training data. The output of the tokenization is then fed to BERT as the input. The next step is to define the model by configuring its parameters such as batch size, number of epochs and the learning rate. Finally, the model is compiled and we can begin the fine-tuning.
+
+For the task of text cleaning, fine-tuning is not required. The process of text cleaning involves detecting and correcting mis-spelled words. Correcting the incorrect words can be seen as predicting the correct words. The Masked Language Model of BERT can be employed to do such prediction. In the pre-training process, the Masked Language Model would mask random words to do the prediction. However, we can tell the model what we want to "mask" by assigning the words to be encoded as `[MASK]`. Consider the erroneous sentence that has ten words:
+
+> "There was no possibility of taking a wlak that day." 
+
+Using a spell-checker, "wlak" is identified as an error and is substituted by `[MASK]`:
+
+> "There was no possibility of taking a [MASK] that day." 
+
+The implementation of text correction with BERT in R with the `keras-bert` Python module is not yet completed. For the purpose of demonstrating how BERT predicts the missing words, we will show the implementation process in Python using the `pytorch_pretrained_bert` library. The reason to use `pytorch_pretrained_bert`(**Keli add citation**) instead of `keras-bert`is that `pytorch_pretrained_bert` has relatively comprehensive functions that makes the prediction of missing words more straightforward. 
+
+After we retrieved the new text data with the error replaced by `[MASK]`, we use the `tokenizer()` function in `pytorch_pretrained_bert` to tokenize the text:
+
+```{python, eval=FALSE}
+tokenized_text = tokenizer.tokenize("There was no possibility of taking a [MASK] that day.")
+tokenized_text
+>>> ['there', 'was', 'no', 'possibility', 'of', 'taking', 'a', '[MASK]', 'that', 'day', '.']
+```
+
+We then get the index of `[MASK]` within the sentence and save it to a list. Since we only have one `[MASK]` token, the list has only one element:
+
+```{python, eval=FALSE}
+mask_index = 7
+```
+
+`pytorch_pretrained_bert` has a dictionary of tokens generated from the pre-training stage. The tokens include the vocabulary, puncuations and special symbols. Each token in the dictionary is given an index, represented as `{token: index}`. The function `convert_tokens_to_ids()` encodes the tokens we got previously to their positional indices in the tokens dictionary and collects them into a list:
+
+```{python, eval=FALSE}
+indexed_tokens = tokenizer.convert_tokens_to_ids(tokenized_text)
+indexed_tokens
+>>> [2045, 2001, 2053, 6061, 1997, 2635, 1037, 103, 2008, 2154, 1012]
+```
+
+The next step is to encode the text by its segments. The model encodes a sentence of representing each word in the sentence with the positional index of the sentence in the provided corpus. For example, the example text has only one sentence "There was no possibility of taking a [MASK] that day." Therefore, the position of the sentence is "0", and the encoding for each word in the sentence, including the period is a series of "0" to the length of the sentence:
+
+```{python, eval=FALSE}
+segments_tokens = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+```
+
+The previous two steps give us two set of encoding — `indexed_tokens` that contains the encoding for each token, and `segments_tokens` that contains the encoding for each sentence. These two encoding layers that we feed to BERT Masked Language Model. The model takes tensor objects as inputs [@paszke2017automatic], therefore we transformed the two lists into tensor objects before hands. These two tensor objects has two dimensions. The first dimension is the container, and the second dimension is the length of the token lists.
+
+```{python, eval=FALSE}
+tokens_tensor = torch.tensor([indexed_tokens])
+tokens_tensor 
+
+segments_tensor = torch.tensor([segments_encodes])
+segments_tensor
+>>> [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
+```
+
+The encoding layers can be represented as the following:
+
+```{r table3, echo=FALSE, message=FALSE, warnings=FALSE, results='asis'}
+tabl <- "
+|        |'there' |'was' |'no' |'possibility'|'of'|'taking'|'a' |'[MASK]'|'that'|'day'| '.'|
+|--------|--------|------|-----|-------------|----|--------|----|--------|------|-----|----|
+|token   |2045    |2001  |2053 |6061         |1997|2635    |1037|103     |2008  |2154 |1012|
+|segment |0       |0     |0    |0            | 0  |0       |0   |0       |0     |0    |0   |
+
+
+
+Table2. The smoothed probability table
+"
+cat(tabl) # output the table in a format good for HTML/PDF/docx conversion
+```
+
+We then load the pre-trained BertForMaskedLM and feed the two tensor objects to it. The model then returns a tensor object that has three dimensions. The `predictions` tensor objects contains the prediction score of all the words in the vocabulary. 
+
+```{python, eval=FALSE}
+model = BertForMaskedLM.from_pretrained('bert-base-uncased')
+predictions = model(tokens_tensor, segments_tensor)
+predictions
+```
+
+To get the prediction, we will get the element with the highest prediction score and retrieve its index. The retrieved index is then used to find the corresponding token in the tokens dictionary. The predicted word is "walk", which matches with the original sentence in **Jane Eyre**. 
+
+```{python, eval=FALSE}
+predicted_word_index = torch.argmax(predictions[0, mask_index]).item()
+predicted_word_index
+>>> 3328
+predicted_word_token = tokenizer.convert_ids_to_tokens([predicted_index])[0]
+predicted_word_token
+>>> walk
+```
+
+
+# Appendix
+
+
+
+# References
