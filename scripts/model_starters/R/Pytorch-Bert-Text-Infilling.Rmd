@@ -163,7 +163,7 @@ predict_tokens(text, predictions, MASKIDS)
 
 ```{r, warning=FALSE}
 ##### Prediction function
-predict_tokens <- function(text_original) {
+get_correct_text <- function(text_original) {
   ### Clean text
   text_stripped <- strip(text_original, char.keep = c("?", ".", "’", "~~"), digit.remove = TRUE, apostrophe.remove = FALSE,
                          lower.case = FALSE)
@@ -214,5 +214,5 @@ predict_tokens <- function(text_original) {
   return(text)
 }
 
-predict_tokens(text_original)
+get_correct_text(text_original)
 ```
