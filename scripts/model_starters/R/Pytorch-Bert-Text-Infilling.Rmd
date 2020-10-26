@@ -158,3 +158,61 @@ predict_tokens <- function(text, predictions, MASKIDS) {
 
 predict_tokens(text, predictions, MASKIDS)
 ```
+
+## Updated prediction unction
+
+```{r, warning=FALSE}
+##### Prediction function
+predict_tokens <- function(text_original) {
+  ### Clean text
+  text_stripped <- strip(text_original, char.keep = c("?", ".", "’", "~~"), digit.remove = TRUE, apostrophe.remove = FALSE,
+                         lower.case = FALSE)
+  ### Collect text errors
+  errors <- hunspell(text_stripped)
+
+  ### Replace errors to [MASK]
+  for(e in errors){
+    pats <- paste(e, collapse = '|')
+  }
+  text <- str_replace_all(text_stripped, pats, '[MASK]')
+
+  ### Tokenize the text
+  tokenized_text <- tokenizer$tokenize(text)
+  indexed_tokens <- tokenizer$convert_tokens_to_ids(tokenized_text)
+
+  ### Encode the text and create segments tensors
+  MASKIDS <- which(tokenized_text == "[MASK]")
+  SEGS <- which(tokenized_text == ".")
+
+  segments_ids <- rep(as.integer(0), times = SEGS)
+
+  segments_tensors <- torch$tensor(list(segments_ids))
+  tokens_tensor <- torch$tensor(list(indexed_tokens))
+
+  ### Generate prediction
+  py <- torch$no_grad()
+  with(py, {
+    predictions <- model(tokens_tensor, segments_tensors)
+  })
+
+  predicted_token <- list()
+  for(i in 1:length(MASKIDS)){
+    preds <- torch$topk(predictions[[0]][MASKIDS[i]], k=as.integer(50))
+    indices <- preds$indices$tolist()
+    list <- tokenizer$convert_ids_to_tokens(indices)
+    predicted_token <- append(predicted_token, list(list[1]))
+  }
+  predicted_token.i <- 1
+
+  for (i in 1:length(text)) {
+    while (grepl(pattern = "\\Q[MASK]\\E", text[i])) {
+      text[i] <- sub(pattern = "\\Q[MASK]\\E", replacement = predicted_token[predicted_token.i], x = text[i])
+      predicted_token.i <- predicted_token.i + 1
+    }
+  }
+
+  return(text)
+}
+
+predict_tokens(text_original)
+```
