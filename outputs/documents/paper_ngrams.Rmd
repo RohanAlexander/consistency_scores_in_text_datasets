@@ -5,6 +5,7 @@ output:
     keep_tex: false
     toc: false
     fig_caption: true
+    numbering: true
     latex_engine: pdflatex
     template: templates/svm-latex-ms.tex
 bibliography: "references.bib"
@@ -35,13 +36,13 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # 1. Introduction
 
-When we think of quantitative analysis, we may like to think that our job is to 'let the data speak'. But this is rarely the case in practise. Datasets can have errors, be biased, incomplete, or messy. In any case, it is the underlying statistical process of which the dataset is an artifact that is typically of interest. In order to use statistical models to understand that process, we typically need to clean and prepare the dataset in some way. This is especially the case when we work with text data. But this cleaning and preparation requires us to make many decisions. To what extent should we correct obvious errors? What about slightly-less-obvious errors? Although cleaning and preparation is a necessary step, we may be concerned about the extent to which have we introduced new errors, and the possibility that we have made decisions that have affected, or even driven, our results.
+When we think of quantitative analysis, we may like to think that our job is to 'let the data speak'. But this is rarely the case in practise. Datasets can have errors, be biased, incomplete, or messy. In any case, it is the underlying statistical process, of which the dataset is an artifact, that is typically of interest. In order to use statistical models to understand that process, we typically need to clean and prepare the dataset in some way. This is especially the case when we work with text data. But this cleaning and preparation requires us to make many decisions. To what extent should we correct obvious errors? What about slightly-less-obvious errors? Although cleaning and preparation is a necessary step, we may be concerned about the extent to which have we introduced new errors, and the possibility that we have made decisions that have affected, or even driven, our results.
 
 In this paper we introduce the concept of consistency in a text corpus. Consistency refers to the proportion of words that are able to be forecast by a statistical model, based on preceding words and surrounding context. Further, we define internal consistency as when the model is trained on the corpus itself, and external consistency as when the model is trained on a more general corpus. Together, these concepts provide a guide to the cleanliness and reasonableness of a text dataset. This can be important when deciding whether a dataset is fit for purpose; when carrying out data cleaning and preparation tasks; and as a comparison between datasets.
 
-To provide an example, consider the sentence, 'the cat in the\dots'. A child who has read this book could tell you that the next word should be 'hat'. Hence if the sentence was actually 'the cat in the bat', then that child would know something was likely wrong. The consistency score would likely be lower than if the sentence were 'the cat in the hat'. After we correct this error, the consistency score would likely increase. By examining how consistency scores evolve in response to changes made to the text during the data preparation and cleaning stages we can better understand the effect of the changes. Including consistency scores and their evolution when text corpuses are shared allows researchers to be more transparent about their corpus. And finally, the use of consistency scores allows for an increased level of automation in the cleaning process. 
+To provide an example, consider the sentence, 'the cat in the\dots'. A child who has read this book could tell you that the next word should be 'hat'. Hence if the sentence was actually 'the cat in the bat', then that child would know something was likely wrong. The consistency score would likely be lower than if the sentence were 'the cat in the hat' because we expected 'hat', but actually had 'bat'. After we correct this error, the consistency score would likely increase. By examining how consistency scores evolve in response to changes made to the text during the data preparation and cleaning stages we can better understand the effect of the changes. Including consistency scores and their evolution when datasets are shared allows researchers to be more transparent about the effect of their decisions in these steps of the analysis workflow. And finally, the use of consistency scores allows for an increased level of automation in the cleaning process. 
 
-We employ n-gram models to calculate consistency scores and generate word candidates for text corrections. The n-gram approach involves identifying words that are commonly found together. In our application, we use these sequences to calculate consistency scores and generate word candidates for text corrections. For instance, if using a sequence of three words, or tri-grams, then we identify the first two words in the sequence and evaluate if the last word in the sequence is 'as expected' by comparing it to the corresponding tri-gram in a comparison dataset. The sequences we employed are a mixture of five, four and three consecutive words also known as 5-grams, 4-grams and tri-grams.
+We employ n-gram models to calculate consistency scores and generate word candidates for text corrections. The n-gram approach involves identifying words that are commonly found together. In our application, we use these sequences to calculate consistency scores and generate word candidates for text corrections. For instance, if using a sequence of three words, or tri-grams, then we identify the first two words in the sequence and evaluate if the last word in the sequence is 'as expected' by comparing it to the corresponding tri-gram in a comparison dataset. The sequences we employed are a mixture of three, four, and five, consecutive words also known as tri-grams, 4-grams, and 5-grams.
 
 The comparison dataset can be internal, meaning that the dataset is the source where the text being evaluated is extracted from. On the other hand, a comparison dataset can be external, which means the dataset is from a different source; typically a larger and more universal dataset. The external dataset we use in the application is constructed using a subset of text data sourced from Open WebText Corpus [@Gokaslan2019OpenWeb]. Since the content of Open WebText Corpus is from the internet, the variety of the text data is promising for meeting the generalizability and universality that an external dataset should possess. 
 
@@ -53,11 +54,11 @@ In this paper, we introduce consistency scores and an R package that implements 
 
 ## Language model
 
-Given the nature of human languages, some combinations of words tend to occur more frequently than others. Think of 'good', which is more often followed by 'morning', than 'duck'. As such, we could consider English text production as a conditional probability, $\mbox{Pr}(w_{k} | w^{k-1}_{1})$, where $k$ is the number of words in a sentence, $w_{k}$ is the predicted word, and $w^{k-1}_{1}$ is the history of the word occurring in a sequence [@brown1992class]. In this way, the generation of some prediction, $w_{k}$, is based on the history, $w^{k-1}_{1}$. This is the underlying principle of all language models. Essentially, a language model is a probability distribution over sequences of words. The goal of statistical language modeling is to estimate probability distributions over different linguistic units — words, sentences, and even documents [@bengio2003neural]. However, this is difficult as language is categorical. If we consider each word in a vocabulary as a category, then the dimensionality of language becomes large [@rosenfeld2000two]. The reason that there is such a variety of statistical language models is that there are various ways of dealing with this fundamental problem. N-gram is one of the statistical language models that works by taking the co-occurrence of words in sequence into account. 
+Given the nature of human languages, some combinations of words tend to occur more frequently than others. Think of 'good', which is more often followed by 'morning', than 'duck'. As such, we could consider English text production as a conditional probability, $\mbox{Pr}(w_{k} | w^{k-1}_{1})$, where $k$ is the number of words in a sentence, $w_{k}$ is the predicted word, and $w^{k-1}_{1}$ is the history of the word occurring in a sequence [@brown1992class]. In this way, the generation of some prediction, $w_{k}$, is based on the history, $w^{k-1}_{1}$. This is the underlying principle of all language models. Essentially, a language model is a probability distribution over sequences of words. The goal of statistical language modeling is to estimate probability distributions over different linguistic units — words, sentences, and even documents [@bengio2003neural]. However, this is difficult as language is categorical. If we consider each word in a vocabulary as a category, then the dimensionality of language becomes large [@rosenfeld2000two]. The reason that there is such a variety of statistical language models is that there are various ways of dealing with this fundamental problem. N-gram models are statistical language models that work by taking the co-occurrence of words in sequence into account. 
 
 ## N-gram models
 
-The foundation of an n-gram language model is the conditional probability set-up introduced above. An n-gram model is a probabilistic language model that predicts the next word in a sequence of words (@bengio2003neural). The $n$ in n-gram refers to the number of words in that sequence. Consider the following excerpt from *Jane Eyre*: 'We had been wandering'. 'We' is a uni-gram, 'We had' is a bi-gram, 'We had been' is a tri-gram, and 'We had been wandering' is a 4-gram. Notice that the two tri-grams in this excerpt, 'We had been', and 'had been wandering', overlap. The use of n-gram models enables us to assign probabilities to both the next sequence of words and just the next word. For instance, consider the two sentences: 'We had been wandering', and 'We had been wangling'. The former is likely to be more frequently encountered in a training corpus. Thus, an n-gram would assign a higher probability to the next word being 'wandering' than 'wangling', given the sequence 'We had been'.
+The foundation of an n-gram language model is the conditional probability set-up introduced above. An n-gram model is a probabilistic language model that predicts the next word in a sequence of words [@bengio2003neural]. The $n$ in n-gram refers to the number of words in that sequence. Consider the following excerpt from *Jane Eyre*: 'We had been wandering'. 'We' is a uni-gram, 'We had' is a bi-gram, 'We had been' is a tri-gram, and 'We had been wandering' is a 4-gram. Notice that the two tri-grams in this excerpt, 'We had been', and 'had been wandering', overlap. The use of n-gram models enables us to assign probabilities to both the next sequence of words and just the next word. For instance, consider the two sentences: 'We had been wandering', and 'We had been wangling'. The former is likely to be more frequently encountered in a training corpus. Thus, a 4-gram would assign a higher probability to the next word being 'wandering' than 'wangling', given the sequence 'We had been'.
 
 To predict the next word, we have to take the sequence of preceding words into account, which requires knowing the probability of the sequence of words. The probability of a sequence appearing in a corpus follows the chain rule:
 
@@ -73,31 +74,32 @@ As a bi-gram model only considers the immediately preceding word, under the Mark
 
 $$\mbox{Pr}(w_{n} | w^{n-1}_{1}) \approx \mbox{Pr}(w_{n} | w_{n -1})$$
 
-In our application, we use a model that has a mixture of 5-grams, 4-grams and tri-grams to provide word replacements to a text error. Longer n-grams such as 5-grams capture more context of word sequences and potentially generate more accurate predictions. However, there is less probability for a longer sequence of words to fit a specific combination and leads to data sparsity. Therefore, shorter n-grams should still be included to preserve generalizability of the predictions.
+In our application, we use a model that has a mixture of tri-grams, 4-grams, and 5-grams to provide word replacements to a text error. Longer n-grams such as 5-grams capture more context of word sequences and potentially generate more accurate predictions. However, there is less chance that a longer sequence of words will fit a specific combination which can lead to sparsity. Therefore, shorter n-grams should still be included to preserve generalizability of the predictions.
 
-Consider the common English idiom "elephant in the room". If by mistake, the idiom is written as "elephant in the roon" and correction is needed for the last word, we can apply both a tri-gram model or a 4-gram model to predict the candidate word:
+Consider the idiom "elephant in the room". If by mistake, this is written as "elephant in the roon" and correction is needed for the last word, we can apply both a tri-gram model or a 4-gram model to predict the candidate word:
 
 > Using tri-gram model: "in the `<prediction>`"
 
 > Using 4-gram model: "elephant in the `<prediction>`"
 
-In the 4-gram model, one extra more word "elephant" is included and thus provides more context for the word "room" to be accurately predicted. However, there are times people would simply describe the location of an elephant; for example, "elephant in the pond". The combination of this sequence as a 4-gram token might not be in a comparison dataset and no prediction would be available if only the 4-gram models are used. Therefore, we have to also rely on the tri-gram models to provide other word candidates including "in the pond".
+In the 4-gram model, one more word, 'elephant', is included, which provides more context and increased chance of 'room' being accurately predicted. However, there are times when people may literally be describing the location of an elephant; for instance, 'elephant in the pond'. The combination of this sequence as a 4-gram token might not be in a training dataset and no prediction would be available if only 4-gram models are used. Hence the use of tri-gram models to provide other word candidates including "in the pond".
 
-# 3. The aRianna R package 
+# 3. The `aRianna` R package 
 
 ## Package dependencies
 
-There are a variety of ways to implement an n-gram model within R @citeR including using R packages such as `Quanteda` [@citequanteda], `tidyText` [@citetidytext] and `tm` [@citetm]. In our package, we used the `Quanteda` R package because it has a comprehensive set of functions for conducting text analysis. We also employed `dplyr` [@2018dplyr] for data frame manipulation and `tibble` [@citeTibble] for transforming data frames to the tibble format:
+There are a variety of ways to implement an n-gram model within R [@citeR] including packages such as `quanteda` [@citequanteda], `tidytext` [@citetidytext] and `tm` [@citetm]. We use `quanteda` because it has a comprehensive set of functions for conducting text analysis. We also use `tidyverse` [@citetidyverse] for data manipulation:
   
 ```{r, eval = FALSE}
 install.packages("quanteda")
-install.packages("dplyr")
-install.packages("tibble")
+install.packages("tidyverse")
+library(quanteda)
+library(tidyverse)
 ```
 
 ## Function to make the internal dataset 
 
-To obtain the internal consistency score, we will construct an internal consistency dataset from a body of text that is the source of the text being evaluated. The function `make_internal_consistency_dataset` is created for this purpose. The function turns the body_of_text into an internal consistency dataset which the text being evaluated will be compared with. To do so, the function first transforms the body of text into word tokens with the punctuation removed and the letters turned to lowercase:
+To obtain the internal consistency score, we will first construct a dataset from the text that is itself the text being evaluated. The function `aRianna::make_internal_consistency_dataset()` is created for this purpose. The function turns a `body_of_text` into a dataset to compare the text with. To do so, the function first transforms the `body_of_text` into word tokens with the punctuation removed and the letters turned to lowercase:
   
 ```{r, eval=FALSE}
 tokens_from_example <- 
@@ -106,7 +108,7 @@ tokens_from_example <-
   quanteda::tokens_tolower(tokens_from_example)
 ```
 
-Next, the `make_internal_consistency_dataset` function turns the individual tokens into 5-grams, 4-grams and tri-grams, and keeps only the n-grams that appears in the data for more than once. The common n-grams are preserved in a tibble:
+Next, the `aRianna::make_internal_consistency_dataset()` function turns the individual tokens into tri-grams, 4-grams, and 5-grams, keeping only the n-grams that appear in the data for more than once. These common n-grams are stored in a tibble:
   
 ```{r, eval=FALSE}
 # Create ngrams from the tokens
@@ -126,7 +128,7 @@ all_tokens <-
   dplyr::ungroup()
 ```
 
-Finally, the `make_internal_consistency_dataset` function splits the n-grams to two parts: the previous $n-1$ words and the last word. As a result, a tibble is created with each n-gram containing its original sequence, the first words, and the last word:
+Finally, the `aRianna::make_internal_consistency_dataset()` function splits the n-grams into two parts: the first $n-1$ words and the last word. As a result, a tibble is created with each n-gram containing its original sequence, the first words, and the last word:
   
 ```{r, eval=FALSE}
 # Create a tibble that has the first two words in one column then the third
@@ -144,7 +146,7 @@ all_tokens <-
 
 ## Function to generate internal consistency
 
-After we have the internal consistency dataset, we need a function to compare the text being evaluated and the internal dataset in order to retrieve the internal consistency score — the `generate_internal_consistency_score` function. Similar to the `make_internal_consistency_dataset` function, the function first transforms the text being evaluated into 5-grams, 4-grams and tri-grams tokens, then splits the n-grams to their first words and last words:
+After we have the internal consistency dataset, we need a function to compare the text being evaluated and the internal dataset in order to retrieve the internal consistency score. We define the `aRianna::generate_internal_consistency_score` function to do this. Similar to the `aRianna::make_internal_consistency_dataset` function, this function first transforms the text being evaluated into  tri-grams, 4-grams, and 5-grams tokens, then splits the n-grams to their first words and last words:
   
 ```{r, eval=FALSE}
 # Create tokens with errors
@@ -169,7 +171,7 @@ all_tokens_with_errors <-
                 first_words = stringr::str_replace_all(first_words, " ", "_"))
 ```
 
-Next, the function combines the text tokens tibble and the internal consistency tibble by the `left_join()` function of `dplyr`. The `left_join()` function returns all the rows from the text tokens tibble and all the columns from both tibbles [@2018dplyr]. By combining the two tibbles, the function generates two additional columns — the `last_word` column are the last words of all n-grams, and the `last_word_expected` contains the last words that are in the internal consistency dataset. By comparing the words in `last_word` and `last_word_expected`, we can identify the "unexpected" words. If a last word is in `last_word` but not `last_word_expected`, it is regarded as an unexpected word and the corresponding word in `last_word_expected` serves as a replacement candidate: 
+Next, the function uses `dplyr::left_join()` to combine the tibble of text tokens and the internal consistency tibble. The `dplyr::left_join()` function returns all the rows from the text tokens tibble and all the columns from both tibbles [@2018dplyr]. By combining the two tibbles, the function generates two additional columns — the `last_word` column are the last words of all n-grams, and the `last_word_expected` contains the last words that are in the internal consistency dataset. By comparing the words in `last_word` and `last_word_expected`, we can identify the 'unexpected' words. If a last word is in `last_word` but not `last_word_expected`, it is regarded as an unexpected word and the corresponding word in `last_word_expected` serves as a replacement candidate:
   
 ```{r, eval=FALSE}
 all_tokens_with_errors <-
@@ -178,7 +180,7 @@ all_tokens_with_errors <-
                    by = c("first_words"))
 ```
 
-The consistency score is calculated by the number of words that can be predicted by the model divided by the total number of words in the data. The function identifies the counts of words that are predicted by the model and divided by the total number of words in the internal consistency dataset:
+The consistency score is calculated by the number of words that have been predicted by the model divided by the total number of words in the data. The function identifies the counts of words that are predicted by the model and divided by the total number of words in the internal consistency dataset:
   
 ```{r, eval=FALSE}
 # Calculate the internal consistency score:
@@ -190,7 +192,7 @@ internal_consistency <-
   dplyr::mutate(consistency = true_count/sum(n))
 ```
 
-The `generate_internal_consistency_score` function also lists the identified text errors and generates replacement candidates to the text errors: 
+The `aRianna::generate_internal_consistency_score` function also lists the identified text errors and generates replacement candidates to the text errors: 
   
 ```{r, eval=FALSE}
 # Identify which words were unexpected
@@ -203,7 +205,7 @@ unexpected <-
 
 ## Function to generate external consistency
 
-The `generate_external_consistency_score` function works identically as the `generate_internal_consistency_score` does. The only difference lies in that it compares the text being evaluated with an external consistency dataset that is larger and more general. The external consistency dataset we employed in the application is constructed using a subset text data from Open WebText Corpus by @Gokaslan2019OpenWeb. 
+The `aRianna::generate_external_consistency_score` function works identically to `aRianna::generate_internal_consistency_score`. The only difference is that it compares the text being evaluated with an external consistency dataset that is larger and more general. The external consistency dataset we employed in the application is constructed using a subset text data from Open WebText Corpus by @Gokaslan2019OpenWeb. In general, any dataset could be used. 
 
 ## Demonstration
 
@@ -214,7 +216,7 @@ devtools::install_github("RohanAlexander/arianna")
 library(aRianna)
 ```
 
-For demonstration, we use the first paragraph of Jane Eyre as the internal text data. A sentence within the paragraph is modified with the intention to contain an error and serves as the text to be evaluated:
+For this demonstration, we use the first paragraph of Jane Eyre as the internal text data. A sentence within the paragraph is modified with the intention to contain an error and serves as the text to be evaluated:
   
 ```{r, eval=FALSE}
 body_of_text <- "There was no possibility of taking a walk that day. 
@@ -227,7 +229,7 @@ of the question."
 text_to_evaluate <- "when there was na company"
 ```
 
-The first step is to turn the body of text into the internal consistency dataset. The generated internal consistency dataset is a tibble that contains the 5-grams, 4-grams and tri-grams that appear in the internal text data more than once. Since only `there_was_no` has more than one occurrence, it is the only reference n-gram in the internal consistency dataset:
+The first step is to turn the body of text into the internal consistency dataset. The generated internal consistency dataset is a tibble that contains the tri-grams, 4-grams and 5-grams that appear in the internal text data more than once. Since only 'there_was_no' has more than one occurrence, it is the only n-gram in the internal consistency dataset:
   
 ```{r, eval=FALSE}
 internal_consistency_dataset <- 
@@ -239,7 +241,7 @@ internal_consistency_dataset
 ## 1 there_was_no there_was   no                
 ```
 
-The next step is to compare the text to be evaluated with the internal consistency dataset that we created in the previous step. The function `generate_internal_consistency_score` takes in two arguments — the text to evaluate and the internal consistency dataset. The function identifies the word "na" as an unexpected word, and generates the internal consistency score as zero. The function also lists "no" as the replacement of "na":
+The next step is to compare the text to be evaluated with the internal consistency dataset that we created in the previous step. The function `aRianna::generate_internal_consistency_score()` takes two arguments — the text to evaluate and the internal consistency dataset. The function identifies the word 'na' as an unexpected word, and generates the internal consistency score as zero. The function also lists 'no' as the replacement of 'na':
   
 ```{r, eval=FALSE}
 aRianna::generate_internal_consistency_score(
@@ -259,7 +261,7 @@ aRianna::generate_internal_consistency_score(
 
 ```
 
-To get the external consistency score, we will employ the `generate_external_consistency_score` function. The function `generate_internal_consistency_score` takes in only one argument — the text to evaluate, and compares it with the external consistency dataset. Here, the text to evaluate is "there was no possibiliti", with the word "possibility" being wrongly spelled. The function identifies the word "possibiliti" as an unexpected word, and generates the external consistency score 0.833. Because the external dataset is larger, it is capable of providing more replacement candidates for "possibiliti". The replacements based on 4-grams are displayed first followed by the replacements based on tri-grams: 
+To get the external consistency score, we use the `aRianna::generate_external_consistency_score()` function. The function `aRianna::generate_internal_consistency_score()` takes in only one argument — the text to evaluate, and compares it with the external consistency dataset. Here, the text to evaluate is 'there was no possibiliti', with the word "possibility" being wrongly spelled. The function identifies the word 'possibiliti' as an unexpected word, and generates the external consistency score 0.833. Because the external dataset is larger, it is capable of providing more replacement candidates for 'possibiliti'. There are no replacements based on 5-grams, so the replacements based on 4-grams are displayed first, followed by the replacements based on tri-grams: 
   
 ```{r, eval=FALSE}
 text_to_evaluate <- "there was no possibiliti"
@@ -292,11 +294,19 @@ aRianna::generate_external_consistency_score(text_to_evaluate)
 
 # 4. Discussion
 
-Language models underpinned by n-grams are widely applied in text prediction, spelling-correction, and machine translation [@brown1992class]. As demonstrated in our application, we use a n-gram based model to calculate internal and external consistency scores and generate a list of words as text correction candidates. However, n-gram models do not take the linguistic structure of language into account. For instance, @rosenfeld2000two [p. 1] discusses language in this context, saying that '...it may as well be a sequence of arbitrary symbols, with no deep structure, intention or thought behind'. The prediction of the next word is based on only a few preceding words and broader context is not taken into account. Hence next-word prediction using n-gram based language models can be limited. Here think of a two-gram involving the word 'good' 'good morning'. At scale these can identify missing or unusual words, and work quickly, but they lack nuance. For instance, an equally reasonable two-gram involving the word 'good' is 'good work'. However, because n-gram models does not take the surrounding text into account, it has not capacity of judging if 'morning' or 'work' is to be suggested as the next word after 'good'.
+Outside of textbook examples, almost all real-world datasets need to be cleaned and prepared before they can be analyzed. While there are many tools to help with reproducibility of analysis, options for ensuring reproducibility in earlier stages of a typicaly data science workflow are more limited. Our approach discussed in this paper can help. Our notion of consistency can be tracked at many points while the dataset is being cleaned and prepared. Stages in which it changes substantially can be investigated. While there may be good reasons for such as change, by identifying them it is easier for other researchers to understand the effects of cleaning and preparation on eventual analysis results.
 
-In future works, we intend to investigate in more advanced language models such as word embeddings and Transformers. We consider pre-trained word embedding models including Word2Vec [@mikolov2013efficient] [@mikolov2013distributed] and GloVe [@pennington2014glove], which place each word in a multi-dimensional space such that distance between words can illustrate their relationship [@bengio2003neural]. This approach of representing words in vectors has a long history, but the implementation of @bengio2003neural has become the foundation for much subsequent work. Here, terms are encoded into feature vectors that represent different aspects of the term, and so each term is represented by a position in the vector space. 
+Our approaches are applicable to any dataset, but in this paper we applied them to one based on text. The high-dimensionality of text, and the messiness of it when it comes from real-world sources, means that often considerable cleaning and preparation is done to text datasets. We demonstrated how sequences of words can be used to forecast the very next word. That forecast can be compared with the actual word observed and this difference expressed as a proportion, that we call a 'consistency score'. 
 
-We also consider incorporating generative pre-trained transformer models such as GPT-2 [@radford2019language], GPT-3 [@brown2020language], and BERT [@devlin2018bert]. GPT-2, GPT-3 and BERT are pre-trained language models that are built based on the Transformer architecture [@vaswani2017attention]. Proposed by @vaswani2017attention from Google in 2017, the Transformer is a novel network architecture for neural network that outperforms RNN-based and CNN-based models in computational efficiency [@vaswani2017attention]. Since the emergence of the Transformer model, most of the representative pre-trained models are built based on this architecture [@hanretty2018comparing]. Therefore, we can say that Transformer marks a new era of language models. In our future works, it will be important for us to implement different language models compare their effectiveness in the tasks of generating consistency score and providing suggested text corrections. We intend to use our future findings to continuously improve the `aRianna` package.
+The language model that we used is n-grams. Language models underpinned by n-grams are widely applied in text prediction, spelling-correction, and machine translation [@brown1992class]. As demonstrated in our application, we use a n-gram based model to calculate internal and external consistency scores and generate a list of words as text correction candidates. However, n-gram models do not take the linguistic structure of language into account. For instance, @rosenfeld2000two [p. 1] discusses language in this context, saying that '...it may as well be a sequence of arbitrary symbols, with no deep structure, intention or thought behind'. The prediction of the next word is based on only a few preceding words and broader context is not taken into account. Hence next-word prediction using n-gram based language models can be limited. Here think of a two-gram involving the word 'good', for instance, 'good morning'. At scale these can identify missing or unusual words, and work quickly, but they lack nuance. For instance, an equally reasonable two-gram involving the word 'good' is 'good work'. However, because n-gram models do not take the surrounding text into account, they do not have the capacity to judge if 'morning' or 'work' should be suggested as the next word after 'good'.
+
+In future work we intend to investigate in more advanced language models such as word embeddings and transformers. We will consider pre-trained word embedding models including Word2Vec [@mikolov2013efficient] [@mikolov2013distributed] and GloVe [@pennington2014glove], which place each word in a multi-dimensional space such that distance between words can illustrate their relationship [@bengio2003neural]. This approach of representing words in vectors has a long history, but the implementation of @bengio2003neural has become the foundation for much subsequent work. 
+
+We will also consider incorporating generative pre-trained transformer models such as GPT-2 [@radford2019language], GPT-3 [@brown2020language], and BERT [@devlin2018bert]. These models are based on the transformer architecture [@vaswani2017attention]. Proposed by @vaswani2017attention in 2017, the transformer network architecture for neural networks has been found to outperform both  recurrent neural network-based and convolutional neural network-based models in computational efficiency [@vaswani2017attention]. Since the emergence of the transformer model, most of the representative pre-trained models are built based on this architecture [@hanretty2018comparing]. 
+
+Although the consistency score itself is not of major importance, compared with its changes, improving the score by using more sophisticated models would be considerable benefits in terms of identifying incorrect words. In our future work we are interested in implementing different language models to compare their effectiveness in the task of generating consistency scores and providing suggested text corrections. We intend to use our future findings to continuously improve the `aRianna` package.
+
+
 
 \newpage 
 
