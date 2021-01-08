@@ -182,7 +182,7 @@ make_internal_consistency_dataset <- function(body_of_text) {
 
 ## Function to generate internal consistency
 
-After we have the internal consistency dataset, we need a function to compare the text being evaluated and the internal dataset in order to retrieve the internal consistency score. We define the `aRianna::generate_internal_consistency_score` function to do this. Similar to the `aRianna::make_internal_consistency_dataset` function, this function first transforms the text being evaluated into  tri-grams, 4-grams, and 5-grams tokens, then splits the n-grams to their first words and last words:
+After we have the internal consistency dataset, we need a function to compare the text being evaluated and the internal dataset in order to retrieve the internal consistency score. We define the `aRianna::generate_internal_consistency_score` function to do this. Similar to the `aRianna::make_internal_consistency_dataset` function, this function first transforms the text being evaluated into tri-grams, 4-grams, and 5-grams tokens, then splits the n-grams to their first words and last words:
   
 ```{r, eval=FALSE}
 generate_internal_consistency_score<-function(text_to_check, consistency_dataset){
@@ -227,7 +227,7 @@ all_tokens_with_errors <-
 }
 ```
 
-The consistency score is calculated by the number of words that have been predicted by the model divided by the total number of words in the data. The function identifies the counts of words that are predicted by the model and divided by the total number of words in the internal consistency dataset:
+The consistency score is calculated by the number of words that have been predicted by the model divided by the total number of words in the data. The function identifies the counts of words that are predicted by the model and divided by the total number of words in the input text:
   
 ```{r, eval=FALSE}
 generate_internal_consistency_score<-function(text_to_check, consistency_dataset){
@@ -302,7 +302,7 @@ internal_consistency_dataset
 ## 1 there_was_no there_was   no                
 ```
 
-The next step is to compare the text to be evaluated with the internal consistency dataset that we created in the previous step. The function `aRianna::generate_internal_consistency_score()` takes two arguments — the text to evaluate and the internal consistency dataset. The function identifies the word 'na' as an unexpected word, and generates the internal consistency score as zero. The function also lists 'no' as the replacement of 'na':
+The next step is to compare the text to be evaluated with the internal consistency dataset that we created in the previous step. The function `aRianna::generate_internal_consistency_score()` takes two arguments — the text to evaluate and the internal consistency dataset. The function identifies the word 'na' as an unexpected word, and generates the internal consistency score as 0.8. The function also lists 'no' as the replacement of 'na':
   
 ```{r, eval=FALSE}
 aRianna::generate_internal_consistency_score(
@@ -319,7 +319,7 @@ aRianna::generate_internal_consistency_score(
 ## 1 there_was   na        no                 
 ```
 
-To get the external consistency score, we use the `aRianna::generate_external_consistency_score()` function. The function `aRianna::generate_internal_consistency_score()` takes in only one argument — the text to evaluate, and compares it with the external consistency dataset. Here, the text to evaluate is 'there was no possibiliti', with the word "possibility" being wrongly spelled. The function identifies the word 'possibiliti' as an unexpected word, and generates the external consistency score 0.333. Because the external dataset is larger, it is capable of providing more replacement candidates for 'possibiliti'. There are no replacements based on 5-grams, so the replacements based on 4-grams are displayed first, followed by the replacements based on tri-grams: 
+To get the external consistency score, we use the `aRianna::generate_external_consistency_score()` function. The function `aRianna::generate_internal_consistency_score()` takes in only one argument — the text to evaluate, and compares it with the external consistency dataset. Here, the text to evaluate is 'there was no possibiliti', with the word "possibility" being wrongly spelled. The function identifies the word 'possibiliti' as an unexpected word, and generates the external consistency score 0.75. Because the external dataset is larger, it is capable of providing more replacement candidates for 'possibiliti'. There are no replacements based on 5-grams, so the replacements based on 4-grams are displayed first, followed by the replacements based on tri-grams: 
   
 ```{r, eval=FALSE}
 text_to_evaluate <- "there was no possibiliti"
