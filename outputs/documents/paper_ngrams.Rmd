@@ -142,7 +142,7 @@ make_internal_consistency_dataset <- function(body_of_text) {
   
   # Create ngrams from the tokens
   toks_ngram <- 
-    toks_ngram <- quanteda::tokens_ngrams(tokens_from_example, n = 5:3)
+    quanteda::tokens_ngrams(tokens_from_example, n = 5:3)
   
   # Convert to tibble so we can use our familiar verbs
   all_tokens <- 
@@ -201,7 +201,8 @@ generate_internal_consistency_score<-function(text_to_check, consistency_dataset
   
   all_tokens_with_errors <-
     all_tokens_with_errors %>%
-    dplyr::mutate(tokens = stringr::str_replace_all(tokens, "_", " "),
+    dplyr::mutate(ngram = sapply(strsplit(tokens, "_"), length),
+                  tokens = stringr::str_replace_all(tokens, "_", " "),
                   first_words = stringr::word(tokens, start = 1, end = -2),
                   last_word = stringr::word(tokens, -1),
                   tokens = stringr::str_replace_all(tokens, " ", "_"),
@@ -218,9 +219,9 @@ generate_internal_consistency_score<-function(text_to_check, consistency_dataset
 #... Previous code  
 
 all_tokens_with_errors <-
-  all_tokens_with_errors %>%
-  dplyr::left_join(dplyr::select(consistency_dataset, -tokens), 
-                   by = c("first_words"))
+    all_tokens_with_errors %>%
+    dplyr::left_join(dplyr::select(consistency_dataset, -tokens), 
+                     by = c("first_words"))
 
 # Continuous code...
 }
@@ -233,12 +234,16 @@ generate_internal_consistency_score<-function(text_to_check, consistency_dataset
 #... Previous code  
   
   # Calculate the internal consistency score:
-  internal_consistency <-
-    internal_consistency %>%
-    dplyr::ungroup()%>%
-    dplyr::filter(!is.na(as_expected)) %>%
-    dplyr::count(as_expected) %>%
-    dplyr::mutate(consistency = true_count/sum(n))
+  false_count <- length(internal_consistency[which(internal_consistency$as_expected == FALSE & 
+                                                   internal_consistency$ngram == 3)])
+  word_count <- sapply(strsplit(text_to_check, " "), length)
+  true_count <- word_count - false_count
+
+  internal_consistency <- tibble::tibble(
+    "as_expected" = true_count,
+    "unexpected"  = false_count,
+    "consistency" = true_count/word_count
+  )
   
 # Continuous code...
 }
@@ -251,11 +256,11 @@ generate_internal_consistency_score<-function(text_to_check, consistency_dataset
 #... Previous code  
   
 # Identify which words were unexpected
-unexpected <-
-  all_tokens_with_errors_only %>%
-  dplyr::mutate(as_expected = last_word == last_word_expected) %>%
-  dplyr::filter(as_expected == FALSE) %>%
-  dplyr::select(-tokens)
+  unexpected <-
+    all_tokens_with_errors_only %>%
+    dplyr::mutate(as_expected = last_word == last_word_expected) %>%
+    dplyr::filter(as_expected == FALSE) %>%
+    dplyr::select(-tokens, -ngram, -as_expected)
 }
 ```
 
@@ -304,17 +309,14 @@ aRianna::generate_internal_consistency_score(
   text_to_evaluate, internal_consistency_dataset)
 
 ## $`internal consistency`
-## # A tibble: 1 x 3
-##   as_expected     n consistency
-##   <lgl>       <int>       <dbl>
-## 1 FALSE           1           0
+##   as_expected unexpected consistency
+## 1           4          1         0.8
 
 ## $`unexpected words`
 ## # A tibble: 1 x 3
 ##   first_words last_word last_word_expected 
 ##   <chr>       <chr>     <chr>                 
 ## 1 there_was   na        no                 
-
 ```
 
 To get the external consistency score, we use the `aRianna::generate_external_consistency_score()` function. The function `aRianna::generate_internal_consistency_score()` takes in only one argument — the text to evaluate, and compares it with the external consistency dataset. Here, the text to evaluate is 'there was no possibiliti', with the word "possibility" being wrongly spelled. The function identifies the word 'possibiliti' as an unexpected word, and generates the external consistency score 0.333. Because the external dataset is larger, it is capable of providing more replacement candidates for 'possibiliti'. There are no replacements based on 5-grams, so the replacements based on 4-grams are displayed first, followed by the replacements based on tri-grams: 
@@ -326,10 +328,9 @@ aRianna::generate_external_consistency_score(text_to_evaluate)
 ## aRianna::generate_external_consistency_score(text_to_evaluate)
 ## $`external consistency`
 ## # A tibble: 1 x 3
-##   as_expected     n consistency
-##   <lgl>       <int>       <dbl>
-## 1 FALSE           2       0.333
-## 2 TRUE            1       0.333
+##   as_expected unexpected consistency
+##         <int>      <int>       <dbl>
+## 1           3          1        0.75
 
 ## $`unexpected words`
 ## # A tibble: 11 x 3
