@@ -85,9 +85,24 @@ Consider the idiom "elephant in the room". If by mistake, this is written as "el
 In the 4-gram model, one more word, 'elephant', is included, which provides more context and increased chance of 'room' being accurately predicted. However, there are times when people may literally be describing the location of an elephant; for instance, 'elephant in the pond'. The combination of this sequence as a 4-gram token might not be in a training dataset and no prediction would be available if only 4-gram models are used. Hence the use of tri-gram models to provide other word candidates including "in the pond".
 
 
+
+
 ## Text preparation and cleaning
 
-TBD
+In general text requires a great deal of preparation and cleaning before it can be analysed. For instance, `compositr` [@citecompositr] is an R package that runs through 13 common steps: remove non-UTF8 characters; insert missing comma spaces; replace misspelled words with most likely equivalent; remove HTML tags; convert case; remove URLs; remove numbers; remove punctuation; replace elongated words; remove extra white space; tokenization; stopword removal; and finally stem/lemmatize. 
+
+These are just some of the steps that may be taken. And in general this assumes a fairly clean text dataset in the first instance. If the dataset had been created from Twitter then hashtags and emoji would need to be considered. And if the dataset had been created from OCR then there would likely be systematic errors to be considered. One benefit of using packages such as `compositr` is that these decisions become repeatable and so their effect on subsequent analysis can be easily understood through repeated running of the full workflow. The notion of consistency provides a measure of this without the need to run the full workflow.
+
+
+## Consistency
+
+Here we define, mathematically, what we mean by consistency in the case of text. Consider some text extract for which we want a consistency score. If there are $n$ words, of which $k$ are forecast correctly by a model, then the consistency score is the proportion: k/n. We implement this in dataframes using a binary column. Each word is a row, and a column tracks the forecast, classifying each word as 1 if it was correctly forecast and 0 otherwise. Then the internal consistency estimator is given by Equation (1):
+
+\begin{equation}
+c_i = \frac{\mbox{sum correctly forecast word column}}{\mbox{length of dataset}}.
+\end{equation}
+
+We distinguish between a model trained on the dataset for which consistency is being estimated, which results in an estimate of internal consistency, $c_i$, and a model trained on another dataset, which results in an estimate of external consistency, $c_e$. We consider the forecast of each word independently, allowing for correlation in future work. 
 
 
 
