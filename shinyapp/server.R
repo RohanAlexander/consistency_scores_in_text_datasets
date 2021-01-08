@@ -1,4 +1,4 @@
-library(aRianna)
+# library(aRianna)
 source("training_data.R")
 source("OCR_text_func.R")
 
@@ -12,7 +12,7 @@ server <- function(input, output, session) {
   # Displays input text
   output$unexpected_words <- renderTable({
     unexpected_words <- getInternalResults()[[1]]
-    colnames(unexpected_words) <- c("As Expected", "Count", "Consistency Score")
+    colnames(unexpected_words) <- c("As Expected", "Unexpected", "Consistency Score")
     unexpected_words
   })
 
@@ -69,7 +69,7 @@ server <- function(input, output, session) {
   # Load demo data when the corresponding button is clicked
   observe({
     input$loadDemo
-    updateTextInput(session, "myTextData", value = demoTextData)
+    updateTextInput(session, "myTextData", value = demoInternalTextData)
   })
 
   # Load demo data when the corresponding button is clicked in external consistency panel
