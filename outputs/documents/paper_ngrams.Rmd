@@ -348,6 +348,10 @@ aRianna::generate_external_consistency_score(text_to_evaluate)
 ## 11 was_no       possibiliti  wonder 
 ```
 
+The choice of what do now depends on a variety of factors including the purpose of the analysis, and the size of the corpus. One option is to consider only a subset of potential replacements, or to consider only replacements over a certain probability threshold. These are parameters that can be tuned in more sophisticated language models. The choice of which word to change 'possibili' to could affect the consistency score if it is not what the model expects. Future work, with more sophisticated language models, could allow tuning in this regard. 
+
+
+
 # 4. Discussion
 
 Outside of textbook examples, almost all real-world datasets need to be cleaned and prepared before they can be analyzed. While there are many tools to help with reproducibility of analysis, options for ensuring reproducibility in earlier stages of a typicaly data science workflow are more limited. Our approach discussed in this paper can help. Our notion of consistency can be tracked at many points while the dataset is being cleaned and prepared. Stages in which it changes substantially can be investigated. While there may be good reasons for such as change, by identifying them it is easier for other researchers to understand the effects of cleaning and preparation on eventual analysis results.
