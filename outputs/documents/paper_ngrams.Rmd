@@ -109,46 +109,60 @@ library(tidyverse)
 To obtain the internal consistency score, we will first construct a dataset from the text that is itself the text being evaluated. The function `aRianna::make_internal_consistency_dataset()` is created for this purpose. The function turns a `body_of_text` into a dataset to compare the text with. To do so, the function first transforms the `body_of_text` into word tokens with the punctuation removed and the letters turned to lowercase:
   
 ```{r, eval=FALSE}
-tokens_from_example <- 
-  quanteda::tokens(body_of_text, remove_punct = TRUE, )
-tokens_from_example <- 
-  quanteda::tokens_tolower(tokens_from_example)
+make_internal_consistency_dataset <- function(body_of_text) {
+  tokens_from_example <- 
+    quanteda::tokens(body_of_text, remove_punct = TRUE)
+  tokens_from_example <- 
+    quanteda::tokens_tolower(tokens_from_example)
+  
+# Continuous code...
+}
 ```
 
 Next, the `aRianna::make_internal_consistency_dataset()` function turns the individual tokens into tri-grams, 4-grams, and 5-grams, keeping only the n-grams that appear in the data for more than once. These common n-grams are stored in a tibble:
   
 ```{r, eval=FALSE}
-# Create ngrams from the tokens
-toks_ngram <- 
-  toks_ngram <- quanteda::tokens_ngrams(tokens_from_example, n = 5:3)
+make_internal_consistency_dataset <- function(body_of_text) {
+# ... Previous code
+  
+  # Create ngrams from the tokens
+  toks_ngram <- 
+    toks_ngram <- quanteda::tokens_ngrams(tokens_from_example, n = 5:3)
+  
+  # Convert to tibble so we can use our familiar verbs
+  all_tokens <- 
+    tibble::tibble(tokens = toks_ngram[[1]])
+  
+  # We only want the common ones, not every one.
+  all_tokens <-
+    all_tokens %>%
+    dplyr::group_by(tokens) %>%
+    dplyr::count() %>%
+    dplyr::filter(n > 1) %>%
+    dplyr::ungroup()
 
-# Convert to tibble so we can use our familiar verbs
-all_tokens <- 
-  tibble::tibble(tokens = toks_ngram[[1]])
-
-# We only want the common ones, not every one.
-all_tokens <-
-  all_tokens %>%
-  dplyr::group_by(tokens) %>%
-  dplyr::count() %>%
-  dplyr::filter(n > 1) %>%
-  dplyr::ungroup()
+# Continuous code...
+}
 ```
 
 Finally, the `aRianna::make_internal_consistency_dataset()` function splits the n-grams into two parts: the first $n-1$ words and the last word. As a result, a tibble is created with each n-gram containing its original sequence, the first words, and the last word:
   
 ```{r, eval=FALSE}
-# Create a tibble that has the first two words in one column then the third
-all_tokens <-
-  all_tokens %>%
-  dplyr::mutate(tokens = stringr::str_replace_all(tokens, "_", " "),
-                first_words = stringr::word(tokens, start = 1, end = -2),
-                last_word = stringr::word(tokens, -1),
-                tokens = stringr::str_replace_all(tokens, " ", "_"),
-                first_words = stringr::str_replace_all(first_words, " ", "_")
-  ) %>%
-  dplyr::rename(last_word_expected = last_word) %>%
-  dplyr::select(-n)
+make_internal_consistency_dataset <- function(body_of_text) {
+# ... Previous code
+  
+  # Create a tibble that has the first two words in one column then the third
+  all_tokens <-
+    all_tokens %>%
+    dplyr::mutate(tokens = stringr::str_replace_all(tokens, "_", " "),
+                  first_words = stringr::word(tokens, start = 1, end = -2),
+                  last_word = stringr::word(tokens, -1),
+                  tokens = stringr::str_replace_all(tokens, " ", "_"),
+                  first_words = stringr::str_replace_all(first_words, " ", "_")
+    ) %>%
+    dplyr::rename(last_word_expected = last_word) %>%
+    dplyr::select(-n)
+}
 ```
 
 ## Function to generate internal consistency
@@ -156,58 +170,78 @@ all_tokens <-
 After we have the internal consistency dataset, we need a function to compare the text being evaluated and the internal dataset in order to retrieve the internal consistency score. We define the `aRianna::generate_internal_consistency_score` function to do this. Similar to the `aRianna::make_internal_consistency_dataset` function, this function first transforms the text being evaluated into  tri-grams, 4-grams, and 5-grams tokens, then splits the n-grams to their first words and last words:
   
 ```{r, eval=FALSE}
-# Create tokens with errors
-tokens_from_example_with_errors <- 
-  quanteda::tokens(text_to_check, remove_punct = TRUE)
-tokens_from_example_with_errors <- 
-  quanteda::tokens_tolower(tokens_from_example_with_errors)
+generate_internal_consistency_score<-function(text_to_check, consistency_dataset){
+  # Create tokens with errors
+  tokens_from_example_with_errors <- 
+    quanteda::tokens(text_to_check, remove_punct = TRUE)
+  tokens_from_example_with_errors <- 
+    quanteda::tokens_tolower(tokens_from_example_with_errors)
+  
+  # Create ngrams from the tokens with errors
+  toks_ngram_with_errors <- 
+    quanteda::tokens_ngrams(tokens_from_example_with_errors, n = 5:3)
+  
+  all_tokens_with_errors <- 
+    tibble::tibble(tokens = toks_ngram_with_errors[[1]])
+  
+  all_tokens_with_errors <-
+    all_tokens_with_errors %>%
+    dplyr::mutate(tokens = stringr::str_replace_all(tokens, "_", " "),
+                  first_words = stringr::word(tokens, start = 1, end = -2),
+                  last_word = stringr::word(tokens, -1),
+                  tokens = stringr::str_replace_all(tokens, " ", "_"),
+                  first_words = stringr::str_replace_all(first_words, " ", "_"))
 
-# Create ngrams from the tokens with errors
-toks_ngram_with_errors <- 
-  quanteda::tokens_ngrams(tokens_from_example_with_errors, n = 5:3)
-
-all_tokens_with_errors <- 
-  tibble::tibble(tokens = toks_ngram_with_errors[[1]])
-
-all_tokens_with_errors <-
-  all_tokens_with_errors %>%
-  dplyr::mutate(tokens = stringr::str_replace_all(tokens, "_", " "),
-                first_words = stringr::word(tokens, start = 1, end = -2),
-                last_word = stringr::word(tokens, -1),
-                tokens = stringr::str_replace_all(tokens, " ", "_"),
-                first_words = stringr::str_replace_all(first_words, " ", "_"))
+# Continuous code...
+}
 ```
 
 Next, the function uses `dplyr::left_join()` to combine the tibble of text tokens and the internal consistency tibble. The `dplyr::left_join()` function returns all the rows from the text tokens tibble and all the columns from both tibbles [@2018dplyr]. By combining the two tibbles, the function generates two additional columns — the `last_word` column are the last words of all n-grams, and the `last_word_expected` contains the last words that are in the internal consistency dataset. By comparing the words in `last_word` and `last_word_expected`, we can identify the 'unexpected' words. If a last word is in `last_word` but not `last_word_expected`, it is regarded as an unexpected word and the corresponding word in `last_word_expected` serves as a replacement candidate:
   
 ```{r, eval=FALSE}
+generate_internal_consistency_score<-function(text_to_check, consistency_dataset){
+#... Previous code  
+
 all_tokens_with_errors <-
   all_tokens_with_errors %>%
   dplyr::left_join(dplyr::select(consistency_dataset, -tokens), 
                    by = c("first_words"))
+
+# Continuous code...
+}
 ```
 
 The consistency score is calculated by the number of words that have been predicted by the model divided by the total number of words in the data. The function identifies the counts of words that are predicted by the model and divided by the total number of words in the internal consistency dataset:
   
 ```{r, eval=FALSE}
-# Calculate the internal consistency score:
-internal_consistency <-
-  internal_consistency %>%
-  dplyr::ungroup()%>%
-  dplyr::filter(!is.na(as_expected)) %>%
-  dplyr::count(as_expected) %>%
-  dplyr::mutate(consistency = true_count/sum(n))
+generate_internal_consistency_score<-function(text_to_check, consistency_dataset){
+#... Previous code  
+  
+  # Calculate the internal consistency score:
+  internal_consistency <-
+    internal_consistency %>%
+    dplyr::ungroup()%>%
+    dplyr::filter(!is.na(as_expected)) %>%
+    dplyr::count(as_expected) %>%
+    dplyr::mutate(consistency = true_count/sum(n))
+  
+# Continuous code...
+}
 ```
 
 The `aRianna::generate_internal_consistency_score` function also lists the identified text errors and generates replacement candidates to the text errors: 
   
 ```{r, eval=FALSE}
+generate_internal_consistency_score<-function(text_to_check, consistency_dataset){
+#... Previous code  
+  
 # Identify which words were unexpected
 unexpected <-
   all_tokens_with_errors_only %>%
   dplyr::mutate(as_expected = last_word == last_word_expected) %>%
   dplyr::filter(as_expected == FALSE) %>%
   dplyr::select(-tokens)
+}
 ```
 
 ## Function to generate external consistency
