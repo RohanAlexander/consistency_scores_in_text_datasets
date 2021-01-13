@@ -1,0 +1,119 @@
+\begin{thebibliography}{}
+
+\bibitem[Bengio et~al., 2003]{bengio2003neural}
+Bengio, Y., Ducharme, R., Vincent, P., and Jauvin, C. (2003).
+\newblock A neural probabilistic language model.
+\newblock {\em {Journal of Machine Learning Research}}, 3(Feb):1137--1155.
+
+\bibitem[Benoit et~al., 2018]{citequanteda}
+Benoit, K., Watanabe, K., Wang, H., Nulty, P., Obeng, A., Müller, S., and
+  Matsuo, A. (2018).
+\newblock quanteda: An r package for the quantitative analysis of textual data.
+\newblock {\em Journal of Open Source Software}, 3(30):774.
+
+\bibitem[Brown et~al., 1992]{brown1992class}
+Brown, P.~F., Della~Pietra, V.~J., Desouza, P.~V., Lai, J.~C., and Mercer,
+  R.~L. (1992).
+\newblock Class-based n-gram models of natural language.
+\newblock {\em Computational linguistics}, 18(4):467--480.
+
+\bibitem[Brown et~al., 2020]{brown2020language}
+Brown, T.~B., Mann, B., Ryder, N., Subbiah, M., Kaplan, J., Dhariwal, P.,
+  Neelakantan, A., Shyam, P., Sastry, G., Askell, A., et~al. (2020).
+\newblock Language models are few-shot learners.
+\newblock {\em arXiv preprint arXiv:2005.14165}.
+
+\bibitem[Devlin et~al., 2018]{devlin2018bert}
+Devlin, J., Chang, M.-W., Lee, K., and Toutanova, K. (2018).
+\newblock Bert: Pre-training of deep bidirectional transformers for language
+  understanding.
+\newblock {\em arXiv preprint arXiv:1810.04805}.
+
+\bibitem[Feinerer and Hornik, 2019]{citetm}
+Feinerer, I. and Hornik, K. (2019).
+\newblock {\em tm: Text Mining Package}.
+\newblock R package version 0.7-7.
+
+\bibitem[Gokaslan and Cohen, 2019]{Gokaslan2019OpenWeb}
+Gokaslan, A. and Cohen, V. (2019).
+\newblock Openwebtext corpus.
+\newblock \url{http://Skylion007.github.io/OpenWebTextCorpus}.
+
+\bibitem[Hanretty et~al., 2018]{hanretty2018comparing}
+Hanretty, C., Lauderdale, B.~E., and Vivyan, N. (2018).
+\newblock Comparing strategies for estimating constituency opinion from
+  national survey samples.
+\newblock {\em Political Science Research and Methods}, 6(3):571--591.
+
+\bibitem[Luscombe, 2021]{citecompositr}
+Luscombe, A. (2021).
+\newblock {\em compositr: Efficient tools for preprocessing text data in R.}
+\newblock R package version 0.0.0.9000.
+
+\bibitem[Mikolov et~al., 2013a]{mikolov2013efficient}
+Mikolov, T., Chen, K., Corrado, G., and Dean, J. (2013a).
+\newblock Efficient estimation of word representations in vector space.
+\newblock {\em arXiv preprint arXiv:1301.3781}.
+
+\bibitem[Mikolov et~al., 2013b]{mikolov2013distributed}
+Mikolov, T., Sutskever, I., Chen, K., Corrado, G.~S., and Dean, J. (2013b).
+\newblock Distributed representations of words and phrases and their
+  compositionality.
+\newblock In {\em Advances in neural information processing systems}, pages
+  3111--3119.
+
+\bibitem[Pennington et~al., 2014]{pennington2014glove}
+Pennington, J., Socher, R., and Manning, C.~D. (2014).
+\newblock Glove: Global vectors for word representation.
+\newblock In {\em Proceedings of the 2014 conference on empirical methods in
+  natural language processing (EMNLP)}, pages 1532--1543.
+
+\bibitem[{R Core Team}, 2019]{citeR}
+{R Core Team} (2019).
+\newblock {\em R: A Language and Environment for Statistical Computing}.
+\newblock R Foundation for Statistical Computing, Vienna, Austria.
+
+\bibitem[Radford et~al., 2019]{radford2019language}
+Radford, A., Wu, J., Child, R., Luan, D., Amodei, D., and Sutskever, I. (2019).
+\newblock Language models are unsupervised multitask learners.
+\newblock {\em OpenAI Blog}, 1(8):9.
+
+\bibitem[Rosenfeld, 2000]{rosenfeld2000two}
+Rosenfeld, R. (2000).
+\newblock Two decades of statistical language modeling: Where do we go from
+  here?
+\newblock {\em Proceedings of the IEEE}, 88(8):1270--1278.
+
+\bibitem[Silge and Robinson, 2016]{citetidytext}
+Silge, J. and Robinson, D. (2016).
+\newblock tidytext: Text mining and analysis using tidy data principles in r.
+\newblock {\em JOSS}, 1(3).
+
+\bibitem[Stoltz and Taylor, 2019]{stoltz2019concept}
+Stoltz, D.~S. and Taylor, M.~A. (2019).
+\newblock Concept mover’s distance: measuring concept engagement via word
+  embeddings in texts.
+\newblock {\em Journal of Computational Social Science}, 2(2):293--313.
+
+\bibitem[Vaswani et~al., 2017]{vaswani2017attention}
+Vaswani, A., Shazeer, N., Parmar, N., Uszkoreit, J., Jones, L., Gomez, A.~N.,
+  Kaiser, {\L}., and Polosukhin, I. (2017).
+\newblock Attention is all you need.
+\newblock In {\em Advances in neural information processing systems}, pages
+  5998--6008.
+
+\bibitem[Wickham et~al., 2019]{citetidyverse}
+Wickham, H., Averick, M., Bryan, J., Chang, W., McGowan, L.~D., François, R.,
+  Grolemund, G., Hayes, A., Henry, L., Hester, J., Kuhn, M., Pedersen, T.~L.,
+  Miller, E., Bache, S.~M., Müller, K., Ooms, J., Robinson, D., Seidel, D.~P.,
+  Spinu, V., Takahashi, K., Vaughan, D., Wilke, C., Woo, K., and Yutani, H.
+  (2019).
+\newblock Welcome to the {tidyverse}.
+\newblock {\em Journal of Open Source Software}, 4(43):1686.
+
+\bibitem[Wickham et~al., 2018]{2018dplyr}
+Wickham, H., François, R., Henry, L., and Müller, K. (2018).
+\newblock {\em dplyr: A Grammar of Data Manipulation}.
+\newblock R package version 0.7.6.
+
+\end{thebibliography}
